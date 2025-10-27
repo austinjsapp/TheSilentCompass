@@ -42,10 +42,10 @@ public class AboutUsScreenPanel extends JPanel {
                 "Your journey begins when your canoe is destroyed in rough " +
                 "river rapids, leaving you stranded deep within a dense, " +
                 "uncharted tropical jungle. You are alone, and your only " +
-                "goal is simple: survive and find civilization.\n\n" +
+                "goal is simple: find civilization.\n\n" +
 
-                "The game runs entirely in the terminal. You interact with " +
-                "the world by entering the number corresponding to your choice.";
+                "The game runs entirely in IntelliJ. You interact with " +
+                "the world by selecting any of the choices displayed.";
 
         descriptionTextArea = new JTextArea(bodyText);
         descriptionTextArea.setFont(new Font("Serif", Font.PLAIN, 20));

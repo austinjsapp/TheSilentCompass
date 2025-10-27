@@ -5,55 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="commit">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ProjectCompass.eml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ProjectCompass.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ProjectCompass.userlibraries" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/AboutUsScreenPanel.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/Game.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/GameScreenPanel.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/ImagePanel.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/LoadingScreenPanel.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/MainMenuPanel.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/MusicManager.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/ShadowLabel.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/SoundManager.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/UIHelper.java.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exportToHTML/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/about_us_background.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/black_screen.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/crash.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/game_over_background.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/game_screen_background.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/jaguar.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/loading_screen_background.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/main_menu.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/music/game_ambient_music.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/music/main_menu_music.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/musiciconmuted.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/musiciconunmuted.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/pathway1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/pathway2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/pathway3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/sfx/button_hover_sfx.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/sfx/button_press_sfx.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/victory_background.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/GameScreenPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ImagePanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/LoadingScreenPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MainMenuPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MusicManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ShadowLabel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SoundManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/UIHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +28,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "austinjsapp"
+  }
+}]]></component>
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="fcadf120-2c80-4423-99c0-88a98fd245f6" />
   </component>
@@ -84,6 +43,9 @@
     "accountId": "fcadf120-2c80-4423-99c0-88a98fd245f6"
   }
 }]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="AISelfReview" />
+  </component>
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 4
 }]]></component>
@@ -159,8 +121,17 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1760939679425</updated>
-      <workItem from="1760939681416" duration="49912000" />
+      <workItem from="1760939681416" duration="53033000" />
     </task>
+    <task id="LOCAL-00001" summary="commit">
+      <option name="closed" value="true" />
+      <created>1761574607473</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1761574607473</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

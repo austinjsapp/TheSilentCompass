@@ -67,7 +67,6 @@ public class UIHelper {
         return null;
     }
 
-    // --- REUSABLE METHOD ---
     /**
      * Finds and plays a sound effect file from the 'sfx' folder.
      * @param keyword The keyword in the SFX file name (e.g., "button_hover_sfx")
@@ -123,7 +122,6 @@ public class UIHelper {
         final Font originalFont = button.getFont();
         final Font hoverFont = originalFont.deriveFont(Font.PLAIN, 48f); // Larger hover font
 
-        // --- MOUSE LISTENER ---
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent evt) {

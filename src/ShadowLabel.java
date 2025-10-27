@@ -40,7 +40,6 @@ public class ShadowLabel extends JLabel {
         int stringWidth = fm.stringWidth(getText());
         int componentWidth = getWidth();
 
-        // --- X Calculation ---
         int x;
         int alignment = getHorizontalAlignment();
 
@@ -54,14 +53,11 @@ public class ShadowLabel extends JLabel {
             x = 0;
         }
 
-        // --- Y Calculation ---
         int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
 
-        // Draw the Shadow using the stored 'shadowOffset' value
         g2.setColor(new Color(0, 0, 0, 150));
         g2.drawString(getText(), x + shadowOffset, y + shadowOffset);
 
-        // Draw the main text on top
         g2.setColor(getForeground());
         g2.drawString(getText(), x, y);
 
