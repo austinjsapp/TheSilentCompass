@@ -1,0 +1,159 @@
+<html>
+<head>
+<title>MusicManager.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #2aacb8;}
+.s5 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+MusicManager.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">AudioInputStream</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">AudioSystem</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">Clip</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">FloatControl</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">LineUnavailableException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">UnsupportedAudioFileException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">File</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">IOException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">Timer</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">ActionListener</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">sound</span><span class="s2">.</span><span class="s1">sampled</span><span class="s2">.</span><span class="s1">BooleanControl</span><span class="s2">;</span>
+
+<span class="s3">// This class handles playing, stopping, and looping music with fades.</span>
+<span class="s0">public class </span><span class="s1">MusicManager </span><span class="s2">{</span>
+
+    <span class="s0">private </span><span class="s1">Clip currentClip</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Timer fadeTimer</span><span class="s2">;</span>
+
+    <span class="s3">// Increased fade time from 500ms to 1.5 seconds</span>
+    <span class="s0">private final int </span><span class="s1">FADE_DURATION </span><span class="s2">= </span><span class="s4">1500</span><span class="s2">; </span><span class="s3">// &lt;-- CHANGED</span>
+
+    <span class="s0">private final int </span><span class="s1">FADE_STEPS </span><span class="s2">= </span><span class="s4">20</span><span class="s2">;</span>
+    <span class="s0">private final int </span><span class="s1">FADE_DELAY </span><span class="s2">= </span><span class="s1">FADE_DURATION </span><span class="s2">/ </span><span class="s1">FADE_STEPS</span><span class="s2">;</span>
+
+    <span class="s0">private final float </span><span class="s1">GAIN_SILENT </span><span class="s2">= -</span><span class="s4">80.0f</span><span class="s2">;</span>
+    <span class="s0">private final float </span><span class="s1">GAIN_FULL </span><span class="s2">= </span><span class="s4">0.0f</span><span class="s2">;</span>
+    <span class="s0">private final float </span><span class="s1">GAIN_RANGE </span><span class="s2">= </span><span class="s1">GAIN_FULL </span><span class="s2">- </span><span class="s1">GAIN_SILENT</span><span class="s2">;</span>
+
+    <span class="s3">// (Helper methods are unchanged)</span>
+    <span class="s0">private </span><span class="s1">FloatControl getVolumeControl</span><span class="s2">(</span><span class="s1">Clip clip</span><span class="s2">) {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">clip </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">clip</span><span class="s2">.</span><span class="s1">isControlSupported</span><span class="s2">(</span><span class="s1">FloatControl</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">.</span><span class="s1">MASTER_GAIN</span><span class="s2">)) {</span>
+            <span class="s0">return </span><span class="s2">(</span><span class="s1">FloatControl</span><span class="s2">) </span><span class="s1">clip</span><span class="s2">.</span><span class="s1">getControl</span><span class="s2">(</span><span class="s1">FloatControl</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">.</span><span class="s1">MASTER_GAIN</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">setVolume</span><span class="s2">(</span><span class="s1">Clip clip</span><span class="s2">, </span><span class="s0">float </span><span class="s1">linearVolume</span><span class="s2">) {</span>
+        <span class="s1">FloatControl volumeControl </span><span class="s2">= </span><span class="s1">getVolumeControl</span><span class="s2">(</span><span class="s1">clip</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">volumeControl </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s0">float </span><span class="s1">dB </span><span class="s2">= (</span><span class="s1">linearVolume </span><span class="s2">* </span><span class="s1">GAIN_RANGE</span><span class="s2">) + </span><span class="s1">GAIN_SILENT</span><span class="s2">;</span>
+            <span class="s1">dB </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">max</span><span class="s2">(</span><span class="s1">dB</span><span class="s2">, </span><span class="s1">volumeControl</span><span class="s2">.</span><span class="s1">getMinimum</span><span class="s2">());</span>
+            <span class="s1">dB </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">min</span><span class="s2">(</span><span class="s1">dB</span><span class="s2">, </span><span class="s1">volumeControl</span><span class="s2">.</span><span class="s1">getMaximum</span><span class="s2">());</span>
+            <span class="s1">volumeControl</span><span class="s2">.</span><span class="s1">setValue</span><span class="s2">(</span><span class="s1">dB</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// (fadeIn is unchanged)</span>
+    <span class="s0">public void </span><span class="s1">fadeIn</span><span class="s2">(</span><span class="s1">String musicFilePath</span><span class="s2">) {</span>
+        <span class="s1">stopMusic</span><span class="s2">();</span>
+
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s1">File musicFile </span><span class="s2">= </span><span class="s0">new </span><span class="s1">File</span><span class="s2">(</span><span class="s1">musicFilePath</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(!</span><span class="s1">musicFile</span><span class="s2">.</span><span class="s1">exists</span><span class="s2">()) {</span>
+                <span class="s1">System</span><span class="s2">.</span><span class="s1">err</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Music file not found: &quot; </span><span class="s2">+ </span><span class="s1">musicFilePath</span><span class="s2">);</span>
+                <span class="s0">return</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s1">AudioInputStream audioStream </span><span class="s2">= </span><span class="s1">AudioSystem</span><span class="s2">.</span><span class="s1">getAudioInputStream</span><span class="s2">(</span><span class="s1">musicFile</span><span class="s2">);</span>
+            <span class="s1">currentClip </span><span class="s2">= </span><span class="s1">AudioSystem</span><span class="s2">.</span><span class="s1">getClip</span><span class="s2">();</span>
+            <span class="s1">currentClip</span><span class="s2">.</span><span class="s1">open</span><span class="s2">(</span><span class="s1">audioStream</span><span class="s2">);</span>
+
+            <span class="s1">setVolume</span><span class="s2">(</span><span class="s1">currentClip</span><span class="s2">, </span><span class="s4">0.0f</span><span class="s2">);</span>
+            <span class="s1">currentClip</span><span class="s2">.</span><span class="s1">loop</span><span class="s2">(</span><span class="s1">Clip</span><span class="s2">.</span><span class="s1">LOOP_CONTINUOUSLY</span><span class="s2">);</span>
+            <span class="s1">currentClip</span><span class="s2">.</span><span class="s1">start</span><span class="s2">();</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">fadeTimer </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">isRunning</span><span class="s2">()) {</span>
+                <span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">stop</span><span class="s2">();</span>
+            <span class="s2">}</span>
+
+            <span class="s0">final int</span><span class="s2">[] </span><span class="s1">step </span><span class="s2">= {</span><span class="s4">0</span><span class="s2">};</span>
+
+            <span class="s1">fadeTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Timer</span><span class="s2">(</span><span class="s1">FADE_DELAY</span><span class="s2">, </span><span class="s1">e -&gt; </span><span class="s2">{</span>
+                <span class="s1">step</span><span class="s2">[</span><span class="s4">0</span><span class="s2">]++;</span>
+                <span class="s0">float </span><span class="s1">volume </span><span class="s2">= (</span><span class="s0">float</span><span class="s2">) </span><span class="s1">step</span><span class="s2">[</span><span class="s4">0</span><span class="s2">] / </span><span class="s1">FADE_STEPS</span><span class="s2">;</span>
+                <span class="s1">setVolume</span><span class="s2">(</span><span class="s1">currentClip</span><span class="s2">, </span><span class="s1">volume</span><span class="s2">);</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">step</span><span class="s2">[</span><span class="s4">0</span><span class="s2">] &gt;= </span><span class="s1">FADE_STEPS</span><span class="s2">) {</span>
+                    <span class="s1">setVolume</span><span class="s2">(</span><span class="s1">currentClip</span><span class="s2">, </span><span class="s4">1.0f</span><span class="s2">);</span>
+                    <span class="s2">((</span><span class="s1">Timer</span><span class="s2">) </span><span class="s1">e</span><span class="s2">.</span><span class="s1">getSource</span><span class="s2">()).</span><span class="s1">stop</span><span class="s2">();</span>
+                <span class="s2">}</span>
+            <span class="s2">});</span>
+            <span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">start</span><span class="s2">();</span>
+
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e</span><span class="s2">) {</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">err</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s5">&quot;Error playing music: &quot; </span><span class="s2">+ </span><span class="s1">e</span><span class="s2">.</span><span class="s1">getMessage</span><span class="s2">());</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// (fadeOut is unchanged)</span>
+    <span class="s0">public void </span><span class="s1">fadeOut</span><span class="s2">(</span><span class="s1">Runnable onFadeComplete</span><span class="s2">) {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentClip </span><span class="s2">== </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">onFadeComplete</span><span class="s2">.</span><span class="s1">run</span><span class="s2">();</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">fadeTimer </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">isRunning</span><span class="s2">()) {</span>
+            <span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">stop</span><span class="s2">();</span>
+        <span class="s2">}</span>
+
+        <span class="s0">final int</span><span class="s2">[] </span><span class="s1">step </span><span class="s2">= {</span><span class="s4">0</span><span class="s2">};</span>
+        <span class="s0">final </span><span class="s1">Clip clipToFade </span><span class="s2">= </span><span class="s1">currentClip</span><span class="s2">;</span>
+        <span class="s1">currentClip </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+
+        <span class="s1">fadeTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Timer</span><span class="s2">(</span><span class="s1">FADE_DELAY</span><span class="s2">, </span><span class="s1">e -&gt; </span><span class="s2">{</span>
+            <span class="s1">step</span><span class="s2">[</span><span class="s4">0</span><span class="s2">]++;</span>
+            <span class="s0">float </span><span class="s1">volume </span><span class="s2">= </span><span class="s4">1.0f </span><span class="s2">- ((</span><span class="s0">float</span><span class="s2">) </span><span class="s1">step</span><span class="s2">[</span><span class="s4">0</span><span class="s2">] / </span><span class="s1">FADE_STEPS</span><span class="s2">);</span>
+            <span class="s1">setVolume</span><span class="s2">(</span><span class="s1">clipToFade</span><span class="s2">, </span><span class="s1">volume</span><span class="s2">);</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">step</span><span class="s2">[</span><span class="s4">0</span><span class="s2">] &gt;= </span><span class="s1">FADE_STEPS</span><span class="s2">) {</span>
+                <span class="s2">((</span><span class="s1">Timer</span><span class="s2">) </span><span class="s1">e</span><span class="s2">.</span><span class="s1">getSource</span><span class="s2">()).</span><span class="s1">stop</span><span class="s2">();</span>
+                <span class="s1">clipToFade</span><span class="s2">.</span><span class="s1">stop</span><span class="s2">();</span>
+                <span class="s1">clipToFade</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+                <span class="s1">onFadeComplete</span><span class="s2">.</span><span class="s1">run</span><span class="s2">();</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+        <span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">start</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// (stopMusic is unchanged)</span>
+    <span class="s0">public void </span><span class="s1">stopMusic</span><span class="s2">() {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">fadeTimer </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">isRunning</span><span class="s2">()) {</span>
+            <span class="s1">fadeTimer</span><span class="s2">.</span><span class="s1">stop</span><span class="s2">();</span>
+        <span class="s2">}</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentClip </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">currentClip</span><span class="s2">.</span><span class="s1">stop</span><span class="s2">();</span>
+            <span class="s1">currentClip</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+            <span class="s1">currentClip </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// (setMuted is unchanged)</span>
+    <span class="s0">public void </span><span class="s1">setMuted</span><span class="s2">(</span><span class="s0">boolean </span><span class="s1">mute</span><span class="s2">) {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentClip </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">currentClip</span><span class="s2">.</span><span class="s1">isControlSupported</span><span class="s2">(</span><span class="s1">BooleanControl</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">.</span><span class="s1">MUTE</span><span class="s2">)) {</span>
+            <span class="s1">BooleanControl muteControl </span><span class="s2">= (</span><span class="s1">BooleanControl</span><span class="s2">) </span><span class="s1">currentClip</span><span class="s2">.</span><span class="s1">getControl</span><span class="s2">(</span><span class="s1">BooleanControl</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">.</span><span class="s1">MUTE</span><span class="s2">);</span>
+            <span class="s1">muteControl</span><span class="s2">.</span><span class="s1">setValue</span><span class="s2">(</span><span class="s1">mute</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

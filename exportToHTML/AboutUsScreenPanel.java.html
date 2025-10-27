@@ -1,0 +1,116 @@
+<html>
+<head>
+<title>AboutUsScreenPanel.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+AboutUsScreenPanel.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JPanel</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JButton</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">SwingConstants</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JTextArea</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Color</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Font</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Graphics</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Graphics2D</span><span class="s2">;</span>
+
+<span class="s3">// This class is a JPanel that represents ONLY the &quot;About Us&quot; screen.</span>
+<span class="s0">public class </span><span class="s1">AboutUsScreenPanel </span><span class="s0">extends </span><span class="s1">JPanel </span><span class="s2">{</span>
+
+    <span class="s0">private </span><span class="s1">JTextArea descriptionTextArea</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">AboutUsScreenPanel</span><span class="s2">(</span><span class="s1">Game game</span><span class="s2">) {</span>
+
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">setLayout</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+
+        <span class="s1">ImagePanel backgroundPanel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImagePanel</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s4">&quot;about_us_background&quot;</span><span class="s2">));</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">800</span><span class="s2">, </span><span class="s5">600</span><span class="s2">);</span>
+
+        <span class="s3">// (using ShadowLabel)</span>
+        <span class="s1">ShadowLabel line1 </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShadowLabel</span><span class="s2">(</span><span class="s4">&quot;About Us&quot;</span><span class="s2">);</span>
+        <span class="s1">line1</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">line1</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">44</span><span class="s2">));</span>
+        <span class="s1">line1</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">50</span><span class="s2">, </span><span class="s5">50</span><span class="s2">, </span><span class="s5">700</span><span class="s2">, </span><span class="s5">60</span><span class="s2">);</span>
+        <span class="s1">line1</span><span class="s2">.</span><span class="s1">setHorizontalAlignment</span><span class="s2">(</span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+
+        <span class="s3">// (using ShadowLabel)</span>
+        <span class="s1">ShadowLabel line2 </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShadowLabel</span><span class="s2">(</span><span class="s4">&quot;A First-Person Survival Text Adventure&quot;</span><span class="s2">);</span>
+        <span class="s1">line2</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">line2</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">28</span><span class="s2">));</span>
+        <span class="s1">line2</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">50</span><span class="s2">, </span><span class="s5">120</span><span class="s2">, </span><span class="s5">700</span><span class="s2">, </span><span class="s5">35</span><span class="s2">);</span>
+        <span class="s1">line2</span><span class="s2">.</span><span class="s1">setHorizontalAlignment</span><span class="s2">(</span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+
+        <span class="s3">// (using JTextArea for text wrapping)</span>
+        <span class="s1">String bodyText </span><span class="s2">= </span><span class="s4">&quot;Built by beginner developers Austin Sapp and Caden Saiza &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;using our custom Java engine, The Silent Compass is a passion &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;project designed to test the limits of text-based survival, &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;where every decision determines your fate.</span><span class="s0">\n\n</span><span class="s4">&quot; </span><span class="s2">+</span>
+
+                <span class="s4">&quot;Your journey begins when your canoe is destroyed in rough &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;river rapids, leaving you stranded deep within a dense, &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;uncharted tropical jungle. You are alone, and your only &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;goal is simple: survive and find civilization.</span><span class="s0">\n\n</span><span class="s4">&quot; </span><span class="s2">+</span>
+
+                <span class="s4">&quot;The game runs entirely in the terminal. You interact with &quot; </span><span class="s2">+</span>
+                <span class="s4">&quot;the world by entering the number corresponding to your choice.&quot;</span><span class="s2">;</span>
+
+        <span class="s1">descriptionTextArea </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JTextArea</span><span class="s2">(</span><span class="s1">bodyText</span><span class="s2">);</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">20</span><span class="s2">));</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setEditable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setWrapStyleWord</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setLineWrap</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setFocusable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+
+        <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">75</span><span class="s2">, </span><span class="s5">175</span><span class="s2">, </span><span class="s5">650</span><span class="s2">, </span><span class="s5">310</span><span class="s2">);</span>
+
+        <span class="s3">// The back button</span>
+        <span class="s1">JButton backButton </span><span class="s2">= </span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">createMenuButton</span><span class="s2">(</span><span class="s4">&quot;BACK TO MENU&quot;</span><span class="s2">);</span>
+        <span class="s1">backButton</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">25</span><span class="s2">, </span><span class="s5">500</span><span class="s2">, </span><span class="s5">400</span><span class="s2">, </span><span class="s5">50</span><span class="s2">);</span>
+        <span class="s1">backButton</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s1">e -&gt; game</span><span class="s2">.</span><span class="s1">showScreen</span><span class="s2">(</span><span class="s4">&quot;mainMenu&quot;</span><span class="s2">));</span>
+
+        <span class="s3">// add everything to the panel</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">line1</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">line2</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">descriptionTextArea</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">backButton</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">backgroundPanel</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">Graphics g</span><span class="s2">) {</span>
+        <span class="s0">super</span><span class="s2">.</span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">g</span><span class="s2">);</span>
+
+        <span class="s3">// Draw the semi-transparent black rectangle behind the JTextArea</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">descriptionTextArea </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">Graphics2D g2d </span><span class="s2">= (</span><span class="s1">Graphics2D</span><span class="s2">) </span><span class="s1">g</span><span class="s2">.</span><span class="s1">create</span><span class="s2">();</span>
+
+            <span class="s3">// Increased opacity from 180 to 220 for better readability</span>
+            <span class="s1">g2d</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Color</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">220</span><span class="s2">)); </span><span class="s3">// &lt;-- WAS 180</span>
+
+            <span class="s3">// Draw the rounded rectangle with the same padding</span>
+            <span class="s1">g2d</span><span class="s2">.</span><span class="s1">fillRoundRect</span><span class="s2">(</span><span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">getX</span><span class="s2">() - </span><span class="s5">10</span><span class="s2">, </span><span class="s3">// x</span>
+                    <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">getY</span><span class="s2">() - </span><span class="s5">10</span><span class="s2">, </span><span class="s3">// y</span>
+                    <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">getWidth</span><span class="s2">() + </span><span class="s5">20</span><span class="s2">, </span><span class="s3">// width</span>
+                    <span class="s1">descriptionTextArea</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">() + </span><span class="s5">20</span><span class="s2">, </span><span class="s3">// height</span>
+                    <span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">);</span>
+
+            <span class="s1">g2d</span><span class="s2">.</span><span class="s1">dispose</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

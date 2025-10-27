@@ -1,0 +1,177 @@
+<html>
+<head>
+<title>Game.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Game.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JFrame</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JPanel</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">Timer</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">CardLayout</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">HashMap</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Map</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Random</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JLayeredPane</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JButton</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">ImageIcon</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Image</span><span class="s2">; </span><span class="s3">// &lt;-- Import for scaling images</span>
+
+<span class="s3">// This is the main controller/director for our entire application.</span>
+<span class="s0">public class </span><span class="s1">Game </span><span class="s2">{</span>
+
+    <span class="s1">JFrame window</span><span class="s2">;</span>
+    <span class="s1">CardLayout cardLayout</span><span class="s2">;</span>
+    <span class="s1">JPanel mainPanel</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">JLayeredPane layeredPane</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">JButton muteButton</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ImageIcon muteIcon</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ImageIcon unmuteIcon</span><span class="s2">;</span>
+    <span class="s0">private boolean </span><span class="s1">isMuted </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">MusicManager musicManager</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Map</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">, </span><span class="s1">String</span><span class="s2">&gt; </span><span class="s1">musicMap</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String currentMusicPath </span><span class="s2">= </span><span class="s4">&quot;&quot;</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Random random </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Random</span><span class="s2">();</span>
+
+    <span class="s0">public static void </span><span class="s1">main</span><span class="s2">(</span><span class="s1">String</span><span class="s2">[] </span><span class="s1">args</span><span class="s2">) {</span>
+        <span class="s0">new </span><span class="s1">Game</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public </span><span class="s1">Game</span><span class="s2">() {</span>
+        <span class="s1">window </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JFrame</span><span class="s2">(</span><span class="s4">&quot;The Silent Compass&quot;</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setSize</span><span class="s2">(</span><span class="s5">800</span><span class="s2">, </span><span class="s5">600</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setDefaultCloseOperation</span><span class="s2">(</span><span class="s1">JFrame</span><span class="s2">.</span><span class="s1">EXIT_ON_CLOSE</span><span class="s2">);</span>
+
+        <span class="s1">layeredPane </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JLayeredPane</span><span class="s2">();</span>
+        <span class="s1">layeredPane</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">800</span><span class="s2">, </span><span class="s5">600</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">layeredPane</span><span class="s2">);</span>
+
+        <span class="s1">cardLayout </span><span class="s2">= </span><span class="s0">new </span><span class="s1">CardLayout</span><span class="s2">();</span>
+        <span class="s1">mainPanel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JPanel</span><span class="s2">(</span><span class="s1">cardLayout</span><span class="s2">);</span>
+        <span class="s1">mainPanel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">800</span><span class="s2">, </span><span class="s5">600</span><span class="s2">);</span>
+        <span class="s1">layeredPane</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">mainPanel</span><span class="s2">, </span><span class="s1">JLayeredPane</span><span class="s2">.</span><span class="s1">DEFAULT_LAYER</span><span class="s2">);</span>
+
+
+        <span class="s3">// Define the button size</span>
+        <span class="s0">int </span><span class="s1">iconSize </span><span class="s2">= </span><span class="s5">50</span><span class="s2">;</span>
+
+        <span class="s3">// Load the *original* images first</span>
+        <span class="s1">ImageIcon originalUnmuteIcon </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageIcon</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s4">&quot;musiciconunmuted&quot;</span><span class="s2">));</span>
+        <span class="s1">ImageIcon originalMuteIcon </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageIcon</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s4">&quot;musiciconmuted&quot;</span><span class="s2">));</span>
+
+        <span class="s3">// Get the 'Image' object from the icon, scale it, and make a new icon</span>
+        <span class="s1">Image scaledUnmuteImg </span><span class="s2">= </span><span class="s1">originalUnmuteIcon</span><span class="s2">.</span><span class="s1">getImage</span><span class="s2">().</span><span class="s1">getScaledInstance</span><span class="s2">(</span><span class="s1">iconSize</span><span class="s2">, </span><span class="s1">iconSize</span><span class="s2">, </span><span class="s1">Image</span><span class="s2">.</span><span class="s1">SCALE_SMOOTH</span><span class="s2">);</span>
+
+        <span class="s3">// It was 'originalMMuteIcon', now it's 'originalMuteIcon'</span>
+        <span class="s1">Image scaledMuteImg </span><span class="s2">= </span><span class="s1">originalMuteIcon</span><span class="s2">.</span><span class="s1">getImage</span><span class="s2">().</span><span class="s1">getScaledInstance</span><span class="s2">(</span><span class="s1">iconSize</span><span class="s2">, </span><span class="s1">iconSize</span><span class="s2">, </span><span class="s1">Image</span><span class="s2">.</span><span class="s1">SCALE_SMOOTH</span><span class="s2">);</span>
+
+        <span class="s3">// Create the final, scaled icons</span>
+        <span class="s1">unmuteIcon </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageIcon</span><span class="s2">(</span><span class="s1">scaledUnmuteImg</span><span class="s2">);</span>
+        <span class="s1">muteIcon </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageIcon</span><span class="s2">(</span><span class="s1">scaledMuteImg</span><span class="s2">);</span>
+
+        <span class="s1">muteButton </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JButton</span><span class="s2">();</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setIcon</span><span class="s2">(</span><span class="s1">unmuteIcon</span><span class="s2">); </span><span class="s3">// Use the new *scaled* icon</span>
+
+
+        <span class="s3">// X = 720 (800 - 50 - 30 for safety/border)</span>
+        <span class="s3">// Y = 500 (600 - 50 - 50 for safety/border)</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">720</span><span class="s2">, </span><span class="s5">500</span><span class="s2">, </span><span class="s1">iconSize</span><span class="s2">, </span><span class="s1">iconSize</span><span class="s2">);</span>
+
+        <span class="s3">// Style the button</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setContentAreaFilled</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setBorderPainted</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setFocusPainted</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s1">e -&gt; </span><span class="s2">{</span>
+            <span class="s1">isMuted </span><span class="s2">= !</span><span class="s1">isMuted</span><span class="s2">;</span>
+            <span class="s1">musicManager</span><span class="s2">.</span><span class="s1">setMuted</span><span class="s2">(</span><span class="s1">isMuted</span><span class="s2">);</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">isMuted</span><span class="s2">) {</span>
+                <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setIcon</span><span class="s2">(</span><span class="s1">muteIcon</span><span class="s2">);</span>
+            <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setIcon</span><span class="s2">(</span><span class="s1">unmuteIcon</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+
+        <span class="s1">layeredPane</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">muteButton</span><span class="s2">, </span><span class="s1">JLayeredPane</span><span class="s2">.</span><span class="s1">PALETTE_LAYER</span><span class="s2">);</span>
+
+
+        <span class="s3">//  MUSIC MANAGER SETUP</span>
+        <span class="s1">musicManager </span><span class="s2">= </span><span class="s0">new </span><span class="s1">MusicManager</span><span class="s2">();</span>
+        <span class="s1">musicMap </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HashMap</span><span class="s2">&lt;&gt;();</span>
+        <span class="s1">musicMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s4">&quot;mainMenu&quot;</span><span class="s2">, </span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findMusicPath</span><span class="s2">(</span><span class="s4">&quot;main_menu_music&quot;</span><span class="s2">));</span>
+        <span class="s1">musicMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s4">&quot;gameScreen&quot;</span><span class="s2">, </span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findMusicPath</span><span class="s2">(</span><span class="s4">&quot;game_ambient_music&quot;</span><span class="s2">));</span>
+        <span class="s1">musicMap</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s4">&quot;aboutUsScreen&quot;</span><span class="s2">, </span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findMusicPath</span><span class="s2">(</span><span class="s4">&quot;main_menu_music&quot;</span><span class="s2">));</span>
+
+        <span class="s1">JPanel mainMenuScreen </span><span class="s2">= </span><span class="s0">new </span><span class="s1">MainMenuPanel</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s1">JPanel gameScreen </span><span class="s2">= </span><span class="s0">new </span><span class="s1">GameScreenPanel</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s1">JPanel aboutUsScreen </span><span class="s2">= </span><span class="s0">new </span><span class="s1">AboutUsScreenPanel</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s1">JPanel loadingScreen </span><span class="s2">= </span><span class="s0">new </span><span class="s1">LoadingScreenPanel</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s3">// --- End Panel Creation ---</span>
+
+        <span class="s1">mainPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">mainMenuScreen</span><span class="s2">, </span><span class="s4">&quot;mainMenu&quot;</span><span class="s2">);</span>
+        <span class="s1">mainPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">gameScreen</span><span class="s2">, </span><span class="s4">&quot;gameScreen&quot;</span><span class="s2">);</span>
+        <span class="s1">mainPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">aboutUsScreen</span><span class="s2">, </span><span class="s4">&quot;aboutUsScreen&quot;</span><span class="s2">);</span>
+        <span class="s1">mainPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">loadingScreen</span><span class="s2">, </span><span class="s4">&quot;loadingScreen&quot;</span><span class="s2">);</span>
+
+        <span class="s1">currentMusicPath </span><span class="s2">= </span><span class="s1">musicMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s4">&quot;mainMenu&quot;</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentMusicPath </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">musicManager</span><span class="s2">.</span><span class="s1">fadeIn</span><span class="s2">(</span><span class="s1">currentMusicPath</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s1">cardLayout</span><span class="s2">.</span><span class="s1">show</span><span class="s2">(</span><span class="s1">mainPanel</span><span class="s2">, </span><span class="s4">&quot;mainMenu&quot;</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public void </span><span class="s1">showScreen</span><span class="s2">(</span><span class="s1">String targetScreenName</span><span class="s2">) {</span>
+
+        <span class="s1">cardLayout</span><span class="s2">.</span><span class="s1">show</span><span class="s2">(</span><span class="s1">mainPanel</span><span class="s2">, </span><span class="s4">&quot;loadingScreen&quot;</span><span class="s2">);</span>
+        <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+
+        <span class="s1">String newMusicPath </span><span class="s2">= </span><span class="s1">musicMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">targetScreenName</span><span class="s2">);</span>
+        <span class="s0">boolean </span><span class="s1">musicNeedsToChange </span><span class="s2">= (</span><span class="s1">newMusicPath </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; !</span><span class="s1">newMusicPath</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s1">currentMusicPath</span><span class="s2">));</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">musicNeedsToChange</span><span class="s2">) {</span>
+            <span class="s1">currentMusicPath </span><span class="s2">= </span><span class="s1">newMusicPath</span><span class="s2">;</span>
+
+            <span class="s1">musicManager</span><span class="s2">.</span><span class="s1">fadeOut</span><span class="s2">(() </span><span class="s1">-&gt; </span><span class="s2">{</span>
+                <span class="s1">musicManager</span><span class="s2">.</span><span class="s1">fadeIn</span><span class="s2">(</span><span class="s1">newMusicPath</span><span class="s2">);</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">isMuted</span><span class="s2">) {</span>
+                    <span class="s1">musicManager</span><span class="s2">.</span><span class="s1">setMuted</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+                <span class="s2">}</span>
+
+                <span class="s1">cardLayout</span><span class="s2">.</span><span class="s1">show</span><span class="s2">(</span><span class="s1">mainPanel</span><span class="s2">, </span><span class="s1">targetScreenName</span><span class="s2">);</span>
+                <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s2">});</span>
+
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+            <span class="s3">// Use the longer, randomized delay</span>
+            <span class="s0">int </span><span class="s1">loadingDelay </span><span class="s2">= </span><span class="s1">random</span><span class="s2">.</span><span class="s1">nextInt</span><span class="s2">(</span><span class="s5">1500</span><span class="s2">) + </span><span class="s5">1500</span><span class="s2">;</span>
+
+            <span class="s1">Timer timer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Timer</span><span class="s2">(</span><span class="s1">loadingDelay</span><span class="s2">, </span><span class="s1">e -&gt; </span><span class="s2">{</span>
+                <span class="s1">cardLayout</span><span class="s2">.</span><span class="s1">show</span><span class="s2">(</span><span class="s1">mainPanel</span><span class="s2">, </span><span class="s1">targetScreenName</span><span class="s2">);</span>
+                <span class="s1">muteButton</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s2">});</span>
+            <span class="s1">timer</span><span class="s2">.</span><span class="s1">setRepeats</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+            <span class="s1">timer</span><span class="s2">.</span><span class="s1">start</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

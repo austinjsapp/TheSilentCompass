@@ -1,0 +1,583 @@
+<html>
+<head>
+<title>GameScreenPanel.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+.s6 { color: #5f826b; font-style: italic;}
+.s7 { color: #67a37c; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+GameScreenPanel.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">ActionEvent</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">ActionListener</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Random</span><span class="s2">;</span>
+<span class="s3">// Import FontMetrics for custom text rendering</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">FontMetrics</span><span class="s2">;</span>
+
+<span class="s3">// This class represents the main gameplay screen.</span>
+<span class="s3">// The logic has been rewritten to follow the provided flowchart.</span>
+<span class="s0">public class </span><span class="s1">GameScreenPanel </span><span class="s0">extends </span><span class="s1">JPanel </span><span class="s2">{</span>
+
+    <span class="s3">// --- Game object (for potential future use) ---</span>
+    <span class="s0">private </span><span class="s1">Game game</span><span class="s2">;</span>
+
+    <span class="s3">// --- UI Components ---</span>
+    <span class="s0">private </span><span class="s1">ImagePanel backgroundPanel</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">JTextArea mainTextArea</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">JButton choice1</span><span class="s2">, </span><span class="s1">choice2</span><span class="s2">, </span><span class="s1">choice3</span><span class="s2">, </span><span class="s1">choice4</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ShadowLabel hpLabelNumber</span><span class="s2">; </span><span class="s3">// Removed weaponLabelName</span>
+    <span class="s0">private </span><span class="s1">Font gameFont </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">26</span><span class="s2">);</span>
+    <span class="s0">private </span><span class="s1">Font smallerGameFont </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">22</span><span class="s2">); </span><span class="s3">// For buttons</span>
+
+    <span class="s3">// --- Game Logic Variables ---</span>
+    <span class="s0">private int </span><span class="s1">playerHP</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String position</span><span class="s2">; </span><span class="s3">// 'position' tracks game state/location</span>
+    <span class="s0">private boolean </span><span class="s1">playerHasPendant</span><span class="s2">; </span><span class="s3">// Win condition item</span>
+    <span class="s0">private </span><span class="s1">Random random</span><span class="s2">; </span><span class="s3">// Kept for health loss variations</span>
+
+    <span class="s3">// --- Default background keyword ---</span>
+    <span class="s0">private final </span><span class="s1">String DEFAULT_BACKGROUND </span><span class="s2">= </span><span class="s4">&quot;black_screen&quot;</span><span class="s2">;</span>
+    <span class="s3">// --- Define new background aliases from flowchart ---</span>
+    <span class="s0">private final </span><span class="s1">String JUNGLE_IMG </span><span class="s2">= </span><span class="s4">&quot;jungle_path&quot;</span><span class="s2">;</span>
+    <span class="s0">private final </span><span class="s1">String RIVER_IMG </span><span class="s2">= </span><span class="s4">&quot;river_scene&quot;</span><span class="s2">;</span>
+    <span class="s0">private final </span><span class="s1">String CAVE_IMG </span><span class="s2">= </span><span class="s4">&quot;cave_entrance&quot;</span><span class="s2">; </span><span class="s3">// Assuming a cave is part of a path</span>
+    <span class="s0">private final </span><span class="s1">String ENDING_IMG </span><span class="s2">= </span><span class="s4">&quot;victory_background&quot;</span><span class="s2">;</span>
+    <span class="s0">private final </span><span class="s1">String LOSE_IMG </span><span class="s2">= </span><span class="s4">&quot;game_over_background&quot;</span><span class="s2">;</span>
+
+
+    <span class="s3">// --- Constructor ---</span>
+    <span class="s0">public </span><span class="s1">GameScreenPanel</span><span class="s2">(</span><span class="s1">Game game</span><span class="s2">) {</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">game </span><span class="s2">= </span><span class="s1">game</span><span class="s2">;</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">setLayout</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">random </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Random</span><span class="s2">();</span>
+
+        <span class="s3">// Background Panel</span>
+        <span class="s1">backgroundPanel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImagePanel</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">800</span><span class="s2">, </span><span class="s5">600</span><span class="s2">);</span>
+
+        <span class="s3">// Player Status Panel (Top)</span>
+        <span class="s1">JPanel playerPanel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JPanel</span><span class="s2">();</span>
+        <span class="s1">playerPanel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">50</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">700</span><span class="s2">, </span><span class="s5">50</span><span class="s2">);</span>
+        <span class="s1">playerPanel</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s3">// --- MODIFIED: Changed to 1 row, 2 columns (HP only) ---</span>
+        <span class="s1">playerPanel</span><span class="s2">.</span><span class="s1">setLayout</span><span class="s2">(</span><span class="s0">new </span><span class="s1">GridLayout</span><span class="s2">(</span><span class="s5">1</span><span class="s2">, </span><span class="s5">2</span><span class="s2">));</span>
+
+        <span class="s1">ShadowLabel hpLabel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShadowLabel</span><span class="s2">(</span><span class="s4">&quot;HP:&quot;</span><span class="s2">);</span>
+        <span class="s1">hpLabel</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">); </span><span class="s1">hpLabel</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">gameFont</span><span class="s2">);</span>
+        <span class="s1">playerPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">hpLabel</span><span class="s2">);</span>
+
+        <span class="s1">hpLabelNumber </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShadowLabel</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s3">// Updated in setup</span>
+        <span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">); </span><span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">gameFont</span><span class="s2">);</span>
+        <span class="s1">playerPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">hpLabelNumber</span><span class="s2">);</span>
+
+        <span class="s3">// --- REMOVED: Weapon labels are not in the flowchart ---</span>
+        <span class="s3">// ShadowLabel weaponLabel = new ShadowLabel(&quot;Weapon:&quot;);</span>
+        <span class="s3">// ...</span>
+        <span class="s3">// weaponLabelName = new ShadowLabel(&quot;&quot;);</span>
+        <span class="s3">// ...</span>
+
+        <span class="s3">// Main Text Area (Middle)</span>
+        <span class="s1">mainTextArea </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JTextArea</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">24</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">); </span><span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setEditable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setWrapStyleWord</span><span class="s2">(</span><span class="s0">true</span><span class="s2">); </span><span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setLineWrap</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setFocusable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">75</span><span class="s2">, </span><span class="s5">80</span><span class="s2">, </span><span class="s5">650</span><span class="s2">, </span><span class="s5">250</span><span class="s2">);</span>
+
+        <span class="s3">// Choice Button Panel (Bottom)</span>
+        <span class="s1">JPanel choiceButtonPanel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JPanel</span><span class="s2">();</span>
+        <span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">75</span><span class="s2">, </span><span class="s5">340</span><span class="s2">, </span><span class="s5">650</span><span class="s2">, </span><span class="s5">200</span><span class="s2">);</span>
+        <span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">setLayout</span><span class="s2">(</span><span class="s0">new </span><span class="s1">GridLayout</span><span class="s2">(</span><span class="s5">4</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">10</span><span class="s2">));</span>
+
+        <span class="s3">// Create Buttons</span>
+        <span class="s1">ChoiceHandler choiceHandler </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ChoiceHandler</span><span class="s2">();</span>
+        <span class="s1">choice1 </span><span class="s2">= </span><span class="s1">createGameButton</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s1">choice1</span><span class="s2">.</span><span class="s1">setActionCommand</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">); </span><span class="s1">choice1</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s1">choiceHandler</span><span class="s2">); </span><span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">choice1</span><span class="s2">);</span>
+        <span class="s1">choice2 </span><span class="s2">= </span><span class="s1">createGameButton</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s1">choice2</span><span class="s2">.</span><span class="s1">setActionCommand</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">); </span><span class="s1">choice2</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s1">choiceHandler</span><span class="s2">); </span><span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">choice2</span><span class="s2">);</span>
+        <span class="s1">choice3 </span><span class="s2">= </span><span class="s1">createGameButton</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s1">choice3</span><span class="s2">.</span><span class="s1">setActionCommand</span><span class="s2">(</span><span class="s4">&quot;c3&quot;</span><span class="s2">); </span><span class="s1">choice3</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s1">choiceHandler</span><span class="s2">); </span><span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">choice3</span><span class="s2">);</span>
+        <span class="s1">choice4 </span><span class="s2">= </span><span class="s1">createGameButton</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s1">choice4</span><span class="s2">.</span><span class="s1">setActionCommand</span><span class="s2">(</span><span class="s4">&quot;c4&quot;</span><span class="s2">); </span><span class="s1">choice4</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s1">choiceHandler</span><span class="s2">); </span><span class="s1">choiceButtonPanel</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">choice4</span><span class="s2">);</span>
+
+        <span class="s3">// Add components to this panel</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">playerPanel</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">mainTextArea</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">choiceButtonPanel</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">backgroundPanel</span><span class="s2">); </span><span class="s3">// Background last</span>
+
+        <span class="s3">// Start game logic</span>
+        <span class="s1">playerSetup</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// --- UI Helper ---</span>
+    <span class="s6">/**</span>
+     <span class="s6">* Creates a styled game button with custom text rendering and hover/click effects.</span>
+     <span class="s6">* (This code is unchanged)</span>
+     <span class="s6">*/</span>
+    <span class="s0">private </span><span class="s1">JButton createGameButton</span><span class="s2">(</span><span class="s1">String text</span><span class="s2">) {</span>
+        <span class="s3">// Create a button with custom painting logic for text shadow</span>
+        <span class="s1">JButton button </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JButton</span><span class="s2">(</span><span class="s1">text</span><span class="s2">) {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">protected void </span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">Graphics g</span><span class="s2">) {</span>
+                <span class="s3">// (Custom shadow painting code)</span>
+                <span class="s1">Graphics2D g2 </span><span class="s2">= (</span><span class="s1">Graphics2D</span><span class="s2">) </span><span class="s1">g</span><span class="s2">.</span><span class="s1">create</span><span class="s2">();</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setRenderingHint</span><span class="s2">(</span><span class="s1">RenderingHints</span><span class="s2">.</span><span class="s1">KEY_TEXT_ANTIALIASING</span><span class="s2">, </span><span class="s1">RenderingHints</span><span class="s2">.</span><span class="s1">VALUE_TEXT_ANTIALIAS_ON</span><span class="s2">);</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getFont</span><span class="s2">());</span>
+                <span class="s1">FontMetrics fm </span><span class="s2">= </span><span class="s1">g2</span><span class="s2">.</span><span class="s1">getFontMetrics</span><span class="s2">();</span>
+                <span class="s0">int </span><span class="s1">stringWidth </span><span class="s2">= </span><span class="s1">fm</span><span class="s2">.</span><span class="s1">stringWidth</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">());</span>
+                <span class="s0">int </span><span class="s1">componentWidth </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">getWidth</span><span class="s2">();</span>
+
+                <span class="s3">// --- X Calculation (Set to CENTER) ---</span>
+                <span class="s0">int </span><span class="s1">x</span><span class="s2">;</span>
+                <span class="s0">int </span><span class="s1">alignment </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">getHorizontalAlignment</span><span class="s2">();</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">alignment </span><span class="s2">== </span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">) {</span>
+                    <span class="s1">x </span><span class="s2">= (</span><span class="s1">componentWidth </span><span class="s2">- </span><span class="s1">stringWidth</span><span class="s2">) / </span><span class="s5">2</span><span class="s2">;</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">alignment </span><span class="s2">== </span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">RIGHT</span><span class="s2">) {</span>
+                    <span class="s1">x </span><span class="s2">= </span><span class="s1">componentWidth </span><span class="s2">- </span><span class="s1">stringWidth</span><span class="s2">;</span>
+                <span class="s2">}</span>
+                <span class="s0">else </span><span class="s2">{ </span><span class="s3">// Default to LEFT</span>
+                    <span class="s1">x </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+                <span class="s2">}</span>
+
+                <span class="s3">// --- Y Calculation (Vertically centered) ---</span>
+                <span class="s0">int </span><span class="s1">y </span><span class="s2">= (</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">() - </span><span class="s1">fm</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">()) / </span><span class="s5">2 </span><span class="s2">+ </span><span class="s1">fm</span><span class="s2">.</span><span class="s1">getAscent</span><span class="s2">();</span>
+
+                <span class="s3">// Draw the Shadow</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Color</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">150</span><span class="s2">));</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">drawString</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">(), </span><span class="s1">x </span><span class="s2">+ </span><span class="s5">2</span><span class="s2">, </span><span class="s1">y </span><span class="s2">+ </span><span class="s5">2</span><span class="s2">); </span><span class="s3">// 2px offset</span>
+
+                <span class="s3">// Draw the main text on top</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getForeground</span><span class="s2">());</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">drawString</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">(), </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">);</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">dispose</span><span class="s2">();</span>
+            <span class="s2">}</span>
+        <span class="s2">};</span>
+
+        <span class="s3">// Apply styling</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">smallerGameFont</span><span class="s2">); </span><span class="s3">// Use the SMALLER font</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setContentAreaFilled</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setBorderPainted</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setFocusPainted</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setHorizontalAlignment</span><span class="s2">(</span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">); </span><span class="s3">// Center the text</span>
+
+        <span class="s3">// Store original font and create hover font</span>
+        <span class="s0">final </span><span class="s1">Font originalFont </span><span class="s2">= </span><span class="s1">button</span><span class="s2">.</span><span class="s1">getFont</span><span class="s2">();</span>
+        <span class="s0">final </span><span class="s1">Font hoverFont </span><span class="s2">= </span><span class="s1">originalFont</span><span class="s2">.</span><span class="s1">deriveFont</span><span class="s2">(</span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">24f</span><span class="s2">); </span><span class="s3">// Slightly larger (24f)</span>
+
+        <span class="s3">// --- MOUSE LISTENER (For hover effect and SFX) ---</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">addMouseListener</span><span class="s2">(</span><span class="s0">new </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">MouseAdapter</span><span class="s2">() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">mouseEntered</span><span class="s2">(</span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">MouseEvent evt</span><span class="s2">) {</span>
+                <span class="s1">button</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">hoverFont</span><span class="s2">); </span><span class="s3">// Change font size on hover</span>
+                <span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;button_hover_sfx&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">mouseExited</span><span class="s2">(</span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">MouseEvent evt</span><span class="s2">) {</span>
+                <span class="s1">button</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">originalFont</span><span class="s2">); </span><span class="s3">// Change back</span>
+            <span class="s2">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">mousePressed</span><span class="s2">(</span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">MouseEvent evt</span><span class="s2">) {</span>
+                <span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;button_press_sfx&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+        <span class="s3">// --- END OF MOUSE LISTENER ---</span>
+
+        <span class="s0">return </span><span class="s1">button</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Paint background for text area</span>
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">Graphics g</span><span class="s2">) {</span>
+        <span class="s0">super</span><span class="s2">.</span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">g</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">mainTextArea </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">Graphics2D g2d </span><span class="s2">= (</span><span class="s1">Graphics2D</span><span class="s2">) </span><span class="s1">g</span><span class="s2">.</span><span class="s1">create</span><span class="s2">();</span>
+            <span class="s1">g2d</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Color</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">220</span><span class="s2">)); </span><span class="s3">// Semi-transparent black</span>
+            <span class="s1">g2d</span><span class="s2">.</span><span class="s1">fillRoundRect</span><span class="s2">(</span><span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">getX</span><span class="s2">() - </span><span class="s5">10</span><span class="s2">, </span><span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">getY</span><span class="s2">() - </span><span class="s5">10</span><span class="s2">, </span><span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">getWidth</span><span class="s2">() + </span><span class="s5">20</span><span class="s2">, </span><span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">() + </span><span class="s5">20</span><span class="s2">, </span><span class="s5">15</span><span class="s2">, </span><span class="s5">15</span><span class="s2">);</span>
+            <span class="s1">g2d</span><span class="s2">.</span><span class="s1">dispose</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// ============================================</span>
+    <span class="s3">// --- GAME SETUP &amp; STATE UPDATE METHODS ---</span>
+    <span class="s3">// ============================================</span>
+
+    <span class="s0">public void </span><span class="s1">playerSetup</span><span class="s2">() {</span>
+        <span class="s1">playerHP </span><span class="s2">= </span><span class="s5">20</span><span class="s2">; </span><span class="s3">// Start with 20 HP</span>
+        <span class="s1">playerHasPendant </span><span class="s2">= </span><span class="s0">false</span><span class="s2">; </span><span class="s3">// Reset item</span>
+        <span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;&quot; </span><span class="s2">+ </span><span class="s1">playerHP</span><span class="s2">);</span>
+        <span class="s1">startGameNode</span><span class="s2">(); </span><span class="s3">// Start at the beginning node</span>
+    <span class="s2">}</span>
+
+    <span class="s6">/** Helper to set text and visibility for the 4 choice buttons */</span>
+    <span class="s0">private void </span><span class="s1">setChoices</span><span class="s2">(</span><span class="s1">String text1</span><span class="s2">, </span><span class="s1">String text2</span><span class="s2">, </span><span class="s1">String text3</span><span class="s2">, </span><span class="s1">String text4</span><span class="s2">) {</span>
+        <span class="s1">choice1</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">text1</span><span class="s2">); </span><span class="s1">choice1</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(!</span><span class="s1">text1</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">());</span>
+        <span class="s1">choice2</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">text2</span><span class="s2">); </span><span class="s1">choice2</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(!</span><span class="s1">text2</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">());</span>
+        <span class="s1">choice3</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">text3</span><span class="s2">); </span><span class="s1">choice3</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(!</span><span class="s1">text3</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">());</span>
+        <span class="s1">choice4</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">text4</span><span class="s2">); </span><span class="s1">choice4</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(!</span><span class="s1">text4</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">());</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">// ========================================================</span>
+    <span class="s3">// --- LOCATION / STATE METHODS (Based on Flowchart) ---</span>
+    <span class="s3">// ========================================================</span>
+
+    <span class="s3">// Node: Start (Process)</span>
+    <span class="s0">public void </span><span class="s1">startGameNode</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;start&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">RIVER_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You wake up beside your shattered canoe on a river bank.</span><span class="s0">\n</span><span class="s4">The dense jungle stretches before you. Survival is key.&quot;</span><span class="s2">);</span>
+        <span class="s3">// This flows into the first decision</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: decisionStart (Decision)</span>
+    <span class="s0">public void </span><span class="s1">decisionStart</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;decisionStart&quot;</span><span class="s2">;</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You stand up and check your surroundings. What is your first move?&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Search the canoe wreckage&quot;</span><span class="s2">, </span><span class="s4">&quot;Follow the riverbank&quot;</span><span class="s2">, </span><span class="s4">&quot;Head into the jungle&quot;</span><span class="s2">, </span><span class="s4">&quot;Check your injuries&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: findKit1 (First Aid Kit)</span>
+    <span class="s0">public void </span><span class="s1">findKit1</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;findKit1&quot;</span><span class="s2">;</span>
+        <span class="s1">playerHP </span><span class="s2">= </span><span class="s5">20</span><span class="s2">; </span><span class="s3">// Full heal</span>
+        <span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;&quot; </span><span class="s2">+ </span><span class="s1">playerHP</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You find an intact First Aid Kit in your bag! You patch up your minor wounds.</span><span class="s0">\n\n</span><span class="s4">(Health Restored to 20)&quot;</span><span class="s2">);</span>
+        <span class="s3">// This flows to the next process node</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: afterKit1 (Process)</span>
+    <span class="s0">public void </span><span class="s1">afterKit1</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;afterKit1&quot;</span><span class="s2">;</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;Feeling much better, you stash the empty kit and survey the area again.&quot;</span><span class="s2">);</span>
+        <span class="s3">// This flows to a new decision</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Follow the riverbank&quot;</span><span class="s2">, </span><span class="s4">&quot;Head into the jungle&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: riverPath (Process)</span>
+    <span class="s0">public void </span><span class="s1">riverPath</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;riverPath&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">RIVER_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You decide to follow the river. The water looks murky, but it's a clear path.&quot;</span><span class="s2">);</span>
+        <span class="s3">// This flows into the river decision</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: decisionRiver (Decision)</span>
+    <span class="s0">public void </span><span class="s1">decisionRiver</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;decisionRiver&quot;</span><span class="s2">;</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You walk for an hour. The riverbank is muddy and difficult.</span><span class="s0">\n</span><span class="s4">You hear a noise in the bushes.&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue on riverbank&quot;</span><span class="s2">, </span><span class="s4">&quot;Wander off into the jungle&quot;</span><span class="s2">, </span><span class="s4">&quot;Find a place to rest&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: findKit2 (First Aid Kit)</span>
+    <span class="s0">public void </span><span class="s1">findKit2</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;findKit2&quot;</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">healAmount </span><span class="s2">= </span><span class="s1">random</span><span class="s2">.</span><span class="s1">nextInt</span><span class="s2">(</span><span class="s5">4</span><span class="s2">) + </span><span class="s5">3</span><span class="s2">; </span><span class="s3">// Heal 3-6 HP</span>
+        <span class="s1">playerHP </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">min</span><span class="s2">(</span><span class="s5">20</span><span class="s2">, </span><span class="s1">playerHP </span><span class="s2">+ </span><span class="s1">healAmount</span><span class="s2">);</span>
+        <span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;&quot; </span><span class="s2">+ </span><span class="s1">playerHP</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You find a sheltered spot under a large tree and rest. You find some edible berries.</span><span class="s0">\n\n</span><span class="s4">(Recovered &quot; </span><span class="s2">+ </span><span class="s1">healAmount </span><span class="s2">+ </span><span class="s4">&quot; HP)&quot;</span><span class="s2">);</span>
+        <span class="s3">// This loops back to the river decision</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: junglePath (Process)</span>
+    <span class="s0">public void </span><span class="s1">junglePath</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;junglePath&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">JUNGLE_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You push your way into the dense, dark jungle. The sounds of insects and birds are deafening.&quot;</span><span class="s2">);</span>
+        <span class="s3">// This flows into the jungle decision</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: decisionJungle (Decision)</span>
+    <span class="s0">public void </span><span class="s1">decisionJungle</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;decisionJungle&quot;</span><span class="s2">;</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You find a fork in the faint animal trail you've been following.&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Go left, towards a rocky hill&quot;</span><span class="s2">, </span><span class="s4">&quot;Go right, towards a swamp&quot;</span><span class="s2">, </span><span class="s4">&quot;Find a place to rest&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: findKit3 (First Aid Kit)</span>
+    <span class="s0">public void </span><span class="s1">findKit3</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;findKit3&quot;</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">healAmount </span><span class="s2">= </span><span class="s1">random</span><span class="s2">.</span><span class="s1">nextInt</span><span class="s2">(</span><span class="s5">3</span><span class="s2">) + </span><span class="s5">2</span><span class="s2">; </span><span class="s3">// Heal 2-4 HP</span>
+        <span class="s1">playerHP </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">min</span><span class="s2">(</span><span class="s5">20</span><span class="s2">, </span><span class="s1">playerHP </span><span class="s2">+ </span><span class="s1">healAmount</span><span class="s2">);</span>
+        <span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;&quot; </span><span class="s2">+ </span><span class="s1">playerHP</span><span class="s2">);</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You sit down to rest. You find a 'First Aid Leaf' known for its properties and apply it to your scratches.</span><span class="s0">\n\n</span><span class="s4">(Recovered &quot; </span><span class="s2">+ </span><span class="s1">healAmount </span><span class="s2">+ </span><span class="s4">&quot; HP)&quot;</span><span class="s2">);</span>
+        <span class="s3">// This loops back to the jungle decision</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: riverPathDamage (Process)</span>
+    <span class="s3">// This represents the path labeled &quot;Continue this path you lose health&quot;</span>
+    <span class="s0">public void </span><span class="s1">riverPathDamage</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;riverPathDamage&quot;</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">damage </span><span class="s2">= </span><span class="s1">random</span><span class="s2">.</span><span class="s1">nextInt</span><span class="s2">(</span><span class="s5">3</span><span class="s2">) + </span><span class="s5">1</span><span class="s2">; </span><span class="s3">// Lose 1-3 HP</span>
+        <span class="s1">playerHP </span><span class="s2">-= </span><span class="s1">damage</span><span class="s2">;</span>
+        <span class="s1">hpLabelNumber</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;&quot; </span><span class="s2">+ </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">max</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">playerHP</span><span class="s2">));</span>
+
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You continue along the riverbank. The terrain is rough, and you slip, cutting your leg.</span><span class="s0">\n\n</span><span class="s4">(You lost &quot; </span><span class="s2">+ </span><span class="s1">damage </span><span class="s2">+ </span><span class="s4">&quot; HP)&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// Check for death as per flowchart</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">playerHP </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">) {</span>
+            <span class="s1">lose</span><span class="s2">(</span><span class="s4">&quot;You succumbed to your injuries and the harsh elements. Game Over.&quot;</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+            <span class="s3">// Flows to the next decision if alive</span>
+            <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: decisionRiverDamage (Decision)</span>
+    <span class="s0">public void </span><span class="s1">decisionRiverDamage</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;decisionRiverDamage&quot;</span><span class="s2">;</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;Your leg hurts, but you press on. The river seems to be widening. You see a small tributary breaking off to the left.&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Follow the main river&quot;</span><span class="s2">, </span><span class="s4">&quot;Explore the tributary&quot;</span><span class="s2">, </span><span class="s4">&quot;Go back to the jungle path&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: findPendant (Item for Rescue Ending)</span>
+    <span class="s0">public void </span><span class="s1">findPendant</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;findPendant&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">CAVE_IMG</span><span class="s2">)); </span><span class="s3">// Assume tributary leads to a cave/waterfall</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;The tributary leads to a small waterfall. Behind the water, you spot a hidden alcove.</span><span class="s0">\n</span><span class="s4">Inside, you find a strange, ornate Pendant!&quot;</span><span class="s2">);</span>
+        <span class="s1">playerHasPendant </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Take the Pendant and continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: afterPendant (Process)</span>
+    <span class="s0">public void </span><span class="s1">afterPendant</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;afterPendant&quot;</span><span class="s2">;</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You pocket the pendant. It feels strangely important.</span><span class="s0">\n</span><span class="s4">The path continues past the waterfall, up a steep hill.&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Continue&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: decisionFinal (Decision)</span>
+    <span class="s3">// This is the final decision block that leads to the three endings</span>
+    <span class="s0">public void </span><span class="s1">decisionFinal</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;decisionFinal&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">JUNGLE_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You've been walking for what feels like days. You are weak and tired.</span><span class="s0">\n</span><span class="s4">You reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a chasm.&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Head towards the smoke&quot;</span><span class="s2">, </span><span class="s4">&quot;Try to cross the rope bridge&quot;</span><span class="s2">, </span><span class="s4">&quot;Give up and stay here&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">// --- End Game States ---</span>
+
+    <span class="s6">/**</span>
+     <span class="s6">* Shows a custom game over message.</span>
+     <span class="s6">* </span><span class="s7">@param </span><span class="s6">message The text to display for the 'instant lost' or health loss.</span>
+     <span class="s6">*/</span>
+    <span class="s0">public void </span><span class="s1">lose</span><span class="s2">(</span><span class="s1">String message</span><span class="s2">) {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;lose&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">LOSE_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">message </span><span class="s2">+ </span><span class="s4">&quot;</span><span class="s0">\n\n</span><span class="s4">GAME OVER&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Restart&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s3">// Added restart option</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: endingEscape (Blue Box)</span>
+    <span class="s0">public void </span><span class="s1">endingEscape</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;endingEscape&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">ENDING_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You cross the bridge carefully. On the other side, you find a clear trail that leads you out of the jungle to a small village.</span><span class="s0">\n\n</span><span class="s4">(Escape Ending)&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;&gt;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s3">// Continue to Thank You</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: endingRescue (Blue Box)</span>
+    <span class="s0">public void </span><span class="s1">endingRescue</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;endingRescue&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">ENDING_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You head towards the smoke. A search party finds you! They were looking for you.</span><span class="s0">\n</span><span class="s4">Your Pendant seems to glow as they approach.</span><span class="s0">\n\n</span><span class="s4">(Rescue Ending)&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;&gt;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s3">// Continue to Thank You</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: endingLost (Blue Box)</span>
+    <span class="s0">public void </span><span class="s1">endingLost</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;endingLost&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">LOSE_IMG</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;You collapse, too weak to go on. The jungle... it wins.</span><span class="s0">\n</span><span class="s4">You are never seen again.</span><span class="s0">\n\n</span><span class="s4">(Lost Forever Ending)&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;&gt;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">); </span><span class="s3">// Continue to Thank You</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Node: thankYou (Final Blue Box)</span>
+    <span class="s0">public void </span><span class="s1">thankYou</span><span class="s2">() {</span>
+        <span class="s1">position </span><span class="s2">= </span><span class="s4">&quot;thankYou&quot;</span><span class="s2">;</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s1">DEFAULT_BACKGROUND</span><span class="s2">));</span>
+        <span class="s1">mainTextArea</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s4">&quot;Thank you for playing!&quot;</span><span class="s2">);</span>
+        <span class="s1">setChoices</span><span class="s2">(</span><span class="s4">&quot;Play Again?&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">// ============================================</span>
+    <span class="s3">// --- ACTION LISTENER (CHOICE HANDLER) ---</span>
+    <span class="s3">// ============================================</span>
+
+    <span class="s0">public class </span><span class="s1">ChoiceHandler </span><span class="s0">implements </span><span class="s1">ActionListener </span><span class="s2">{</span>
+        <span class="s6">/**</span>
+         <span class="s6">* Central handler for all button clicks. Delegates logic based on 'position'.</span>
+         <span class="s6">*/</span>
+        <span class="s0">public void </span><span class="s1">actionPerformed</span><span class="s2">(</span><span class="s1">ActionEvent event</span><span class="s2">) {</span>
+            <span class="s1">String yourChoice </span><span class="s2">= </span><span class="s1">event</span><span class="s2">.</span><span class="s1">getActionCommand</span><span class="s2">();</span>
+
+            <span class="s3">// Handle Restart/Endgame button clicks first</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;lose&quot;</span><span class="s2">) || </span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;thankYou&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) {</span>
+                    <span class="s1">playerSetup</span><span class="s2">(); </span><span class="s3">// Restart the game</span>
+                <span class="s2">}</span>
+                <span class="s0">return</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;endingEscape&quot;</span><span class="s2">) || </span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;endingRescue&quot;</span><span class="s2">) || </span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;endingLost&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) {</span>
+                    <span class="s1">thankYou</span><span class="s2">(); </span><span class="s3">// Go to thank you screen</span>
+                <span class="s2">}</span>
+                <span class="s0">return</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- Primary Death Check (if a choice *could* kill) ---</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">playerHP </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">) {</span>
+                <span class="s0">if </span><span class="s2">(!</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;lose&quot;</span><span class="s2">)) { </span><span class="s3">// To avoid recursive calls</span>
+                    <span class="s1">lose</span><span class="s2">(</span><span class="s4">&quot;You succumbed to your injuries. Game Over.&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">return</span><span class="s2">; </span><span class="s3">// Stop further processing</span>
+            <span class="s2">}</span>
+
+
+            <span class="s3">// --- Flowchart State Machine ---</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;start&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionStart</span><span class="s2">(); }</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- First Decision ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;decisionStart&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s3">// Search wreckage</span>
+                    <span class="s1">lose</span><span class="s2">(</span><span class="s4">&quot;You rummage through the wreckage and a sharp piece of metal snaps, fatally wounding you. Game Over.&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">)) { </span><span class="s3">// Follow riverbank</span>
+                    <span class="s1">riverPath</span><span class="s2">();</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c3&quot;</span><span class="s2">)) { </span><span class="s3">// Head into jungle</span>
+                    <span class="s1">lose</span><span class="s2">(</span><span class="s4">&quot;You walk directly into the jungle without a path and are hopelessly lost within minutes. Game Over.&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c4&quot;</span><span class="s2">)) { </span><span class="s3">// Check injuries</span>
+                    <span class="s1">findKit1</span><span class="s2">();</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- After Finding Kit 1 ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;findKit1&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">afterKit1</span><span class="s2">(); }</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;afterKit1&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">riverPath</span><span class="s2">(); } </span><span class="s3">// Follow river</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">)) { </span><span class="s1">junglePath</span><span class="s2">(); } </span><span class="s3">// Head to jungle</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- River Path ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;riverPath&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionRiver</span><span class="s2">(); }</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;decisionRiver&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s3">// Continue on riverbank</span>
+                    <span class="s1">riverPathDamage</span><span class="s2">(); </span><span class="s3">// This is the path that loses health</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">)) { </span><span class="s3">// Wander off</span>
+                    <span class="s1">lose</span><span class="s2">(</span><span class="s4">&quot;You wander away from the river and are bitten by a venomous snake. Game Over.&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c3&quot;</span><span class="s2">)) { </span><span class="s3">// Rest</span>
+                    <span class="s1">findKit2</span><span class="s2">();</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;findKit2&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionRiver</span><span class="s2">(); } </span><span class="s3">// Loops back</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- Jungle Path ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;junglePath&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionJungle</span><span class="s2">(); }</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;decisionJungle&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s3">// Go left (leads to pendant)</span>
+                    <span class="s1">findPendant</span><span class="s2">(); </span><span class="s3">// This is the &quot;Item for Rescue&quot; path</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">)) { </span><span class="s3">// Go right (swamp)</span>
+                    <span class="s1">lose</span><span class="s2">(</span><span class="s4">&quot;You walk into a swamp and are quickly pulled under by quicksand. Game Over.&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c3&quot;</span><span class="s2">)) { </span><span class="s3">// Rest</span>
+                    <span class="s1">findKit3</span><span class="s2">();</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;findKit3&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionJungle</span><span class="s2">(); } </span><span class="s3">// Loops back</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- River Path (Damaging) ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;riverPathDamage&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionRiverDamage</span><span class="s2">(); }</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;decisionRiverDamage&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s3">// Follow main river</span>
+                    <span class="s3">// This leads to the final decision</span>
+                    <span class="s1">decisionFinal</span><span class="s2">();</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">)) { </span><span class="s3">// Explore tributary</span>
+                    <span class="s1">findPendant</span><span class="s2">(); </span><span class="s3">// Leads to the item</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c3&quot;</span><span class="s2">)) { </span><span class="s3">// Go back to jungle</span>
+                    <span class="s1">junglePath</span><span class="s2">(); </span><span class="s3">// Switches paths</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- After Pendant Path ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;findPendant&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">afterPendant</span><span class="s2">(); }</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;afterPendant&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s1">decisionFinal</span><span class="s2">(); } </span><span class="s3">// Leads to final decision</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// --- Final Decision (Endings) ---</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">position</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;decisionFinal&quot;</span><span class="s2">)) {</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c1&quot;</span><span class="s2">)) { </span><span class="s3">// Head towards smoke</span>
+                    <span class="s3">// This is the &quot;Requires Item&quot; path</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">playerHasPendant</span><span class="s2">) {</span>
+                        <span class="s1">endingRescue</span><span class="s2">(); </span><span class="s3">// Good ending</span>
+                    <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                        <span class="s1">endingLost</span><span class="s2">(); </span><span class="s3">// Bad ending if no item</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c2&quot;</span><span class="s2">)) { </span><span class="s3">// Cross bridge</span>
+                    <span class="s3">// This is the other &quot;Requires Item&quot; path</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">playerHP </span><span class="s2">&gt; </span><span class="s5">5</span><span class="s2">) { </span><span class="s3">// Requires health</span>
+                        <span class="s1">endingEscape</span><span class="s2">(); </span><span class="s3">// Good ending</span>
+                    <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                        <span class="s1">endingLost</span><span class="s2">(); </span><span class="s3">// Bad ending if low health</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">yourChoice</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;c3&quot;</span><span class="s2">)) { </span><span class="s3">// Give up</span>
+                    <span class="s1">endingLost</span><span class="s2">();</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+        <span class="s2">} </span><span class="s3">// End actionPerformed</span>
+    <span class="s2">} </span><span class="s3">// End ChoiceHandler class</span>
+
+<span class="s2">} </span><span class="s3">// End of GameScreenPanel class</span></pre>
+</body>
+</html>

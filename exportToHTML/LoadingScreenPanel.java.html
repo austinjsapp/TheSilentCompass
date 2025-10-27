@@ -1,0 +1,118 @@
+<html>
+<head>
+<title>LoadingScreenPanel.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+LoadingScreenPanel.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">JPanel</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">SwingConstants</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">Timer</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">AncestorEvent</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">AncestorListener</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Color</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Font</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Random</span><span class="s2">;</span>
+
+<span class="s3">// This is our new, &quot;smart&quot; loading screen panel.</span>
+<span class="s0">public class </span><span class="s1">LoadingScreenPanel </span><span class="s0">extends </span><span class="s1">JPanel </span><span class="s2">{</span>
+
+    <span class="s0">private </span><span class="s1">ShadowLabel loadingText</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ShadowLabel tipText</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Timer animationTimer</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Random random</span><span class="s2">;</span>
+
+    <span class="s0">private final </span><span class="s1">String</span><span class="s2">[] </span><span class="s1">loadingFrames </span><span class="s2">= {</span><span class="s4">&quot;Loading.&quot;</span><span class="s2">, </span><span class="s4">&quot;Loading..&quot;</span><span class="s2">, </span><span class="s4">&quot;Loading...&quot;</span><span class="s2">};</span>
+
+    <span class="s0">private final </span><span class="s1">String</span><span class="s2">[] </span><span class="s1">survivalTips </span><span class="s2">= {</span>
+            <span class="s4">&quot;Keep an eye on your hunger and thirst.&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;Not all plants are safe to eat.&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;A sharp tool is a friend.&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;Listen for the sounds of the jungle; they can warn you of danger.&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;Shelter is your first priority before nightfall.&quot;</span>
+    <span class="s2">};</span>
+
+    <span class="s0">private int </span><span class="s1">currentFrame </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">LoadingScreenPanel</span><span class="s2">(</span><span class="s1">Game game</span><span class="s2">) {</span>
+
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">setLayout</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">random </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Random</span><span class="s2">();</span>
+
+        <span class="s1">loadingText </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShadowLabel</span><span class="s2">(</span><span class="s4">&quot;Loading...&quot;</span><span class="s2">);</span>
+        <span class="s1">loadingText</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">loadingText</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">52</span><span class="s2">)); </span><span class="s3">// Was 36</span>
+        <span class="s1">loadingText</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">100</span><span class="s2">, </span><span class="s5">225</span><span class="s2">, </span><span class="s5">600</span><span class="s2">, </span><span class="s5">100</span><span class="s2">);</span>
+        <span class="s1">loadingText</span><span class="s2">.</span><span class="s1">setHorizontalAlignment</span><span class="s2">(</span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+
+        <span class="s3">// SET UP THE &quot;TIP&quot; TEXT ---</span>
+        <span class="s1">tipText </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ShadowLabel</span><span class="s2">(</span><span class="s4">&quot;Tip: Keep an eye on your hunger and thirst.&quot;</span><span class="s2">);</span>
+        <span class="s1">tipText</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s3">// FONT SIZE CHANGED</span>
+        <span class="s1">tipText</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s5">24</span><span class="s2">)); </span><span class="s3">// Was 20</span>
+        <span class="s1">tipText</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">50</span><span class="s2">, </span><span class="s5">325</span><span class="s2">, </span><span class="s5">700</span><span class="s2">, </span><span class="s5">50</span><span class="s2">);</span>
+        <span class="s1">tipText</span><span class="s2">.</span><span class="s1">setHorizontalAlignment</span><span class="s2">(</span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+
+        <span class="s3">// SET UP THE ANIMATION TIMER</span>
+        <span class="s1">animationTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Timer</span><span class="s2">(</span><span class="s5">300</span><span class="s2">, </span><span class="s1">e -&gt; </span><span class="s2">{</span>
+            <span class="s1">currentFrame </span><span class="s2">= (</span><span class="s1">currentFrame </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">) % </span><span class="s1">loadingFrames</span><span class="s2">.</span><span class="s1">length</span><span class="s2">;</span>
+            <span class="s1">loadingText</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">loadingFrames</span><span class="s2">[</span><span class="s1">currentFrame</span><span class="s2">]);</span>
+        <span class="s2">});</span>
+        <span class="s1">animationTimer</span><span class="s2">.</span><span class="s1">setRepeats</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+
+        <span class="s3">// SET UP THE BACKGROUND</span>
+        <span class="s1">ImagePanel backgroundPanel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImagePanel</span><span class="s2">(</span><span class="s1">UIHelper</span><span class="s2">.</span><span class="s1">findImagePath</span><span class="s2">(</span><span class="s4">&quot;loading_screen_background&quot;</span><span class="s2">));</span>
+        <span class="s1">backgroundPanel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0</span><span class="s2">, </span><span class="s5">800</span><span class="s2">, </span><span class="s5">600</span><span class="s2">);</span>
+
+        <span class="s3">// SET UP THE &quot;SMART&quot; LISTENER</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">addAncestorListener</span><span class="s2">(</span><span class="s0">new </span><span class="s1">AncestorListener</span><span class="s2">() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">ancestorAdded</span><span class="s2">(</span><span class="s1">AncestorEvent event</span><span class="s2">) {</span>
+                <span class="s3">// This runs when the panel becomes VISIBLE</span>
+                <span class="s1">selectRandomTip</span><span class="s2">();</span>
+                <span class="s1">resetAnimation</span><span class="s2">();</span>
+                <span class="s1">animationTimer</span><span class="s2">.</span><span class="s1">start</span><span class="s2">();</span>
+            <span class="s2">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">ancestorRemoved</span><span class="s2">(</span><span class="s1">AncestorEvent event</span><span class="s2">) {</span>
+                <span class="s3">// This runs when the panel becomes HIDDEN</span>
+                <span class="s1">animationTimer</span><span class="s2">.</span><span class="s1">stop</span><span class="s2">();</span>
+            <span class="s2">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">ancestorMoved</span><span class="s2">(</span><span class="s1">AncestorEvent event</span><span class="s2">) {</span>
+                <span class="s3">// We don't need this one</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">loadingText</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">tipText</span><span class="s2">);</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">backgroundPanel</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// (Helper methods are unchanged)</span>
+    <span class="s0">private void </span><span class="s1">selectRandomTip</span><span class="s2">() {</span>
+        <span class="s0">int </span><span class="s1">index </span><span class="s2">= </span><span class="s1">random</span><span class="s2">.</span><span class="s1">nextInt</span><span class="s2">(</span><span class="s1">survivalTips</span><span class="s2">.</span><span class="s1">length</span><span class="s2">);</span>
+        <span class="s1">tipText</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">survivalTips</span><span class="s2">[</span><span class="s1">index</span><span class="s2">]);</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">resetAnimation</span><span class="s2">() {</span>
+        <span class="s1">currentFrame </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+        <span class="s1">loadingText</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">loadingFrames</span><span class="s2">[</span><span class="s5">0</span><span class="s2">]);</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

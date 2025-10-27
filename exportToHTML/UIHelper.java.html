@@ -1,0 +1,171 @@
+<html>
+<head>
+<title>UIHelper.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #5f826b; font-style: italic;}
+.s6 { color: #67a37c; font-style: italic;}
+.s7 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+UIHelper.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">File</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">Graphics2D</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">RenderingHints</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">FontMetrics</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">MouseAdapter</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">MouseEvent</span><span class="s2">;</span>
+
+<span class="s3">// A helper class with static methods for creating UI elements and finding files.</span>
+<span class="s0">public class </span><span class="s1">UIHelper </span><span class="s2">{</span>
+
+    <span class="s3">// Create a single instance of SoundManager</span>
+    <span class="s0">private static final </span><span class="s1">SoundManager soundManager </span><span class="s2">= </span><span class="s0">new </span><span class="s1">SoundManager</span><span class="s2">();</span>
+
+    <span class="s3">// Helper method to find images reliably</span>
+    <span class="s0">public static </span><span class="s1">String findImagePath</span><span class="s2">(</span><span class="s1">String keyword</span><span class="s2">) {</span>
+        <span class="s1">String projectPath </span><span class="s2">= </span><span class="s1">System</span><span class="s2">.</span><span class="s1">getProperty</span><span class="s2">(</span><span class="s4">&quot;user.dir&quot;</span><span class="s2">);</span>
+        <span class="s1">File resourcesDir </span><span class="s2">= </span><span class="s0">new </span><span class="s1">File</span><span class="s2">(</span><span class="s1">projectPath</span><span class="s2">, </span><span class="s4">&quot;resources&quot;</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">exists</span><span class="s2">() &amp;&amp; </span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">isDirectory</span><span class="s2">()) {</span>
+            <span class="s1">File</span><span class="s2">[] </span><span class="s1">files </span><span class="s2">= </span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">listFiles</span><span class="s2">();</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">files </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+                <span class="s0">for </span><span class="s2">(</span><span class="s1">File file </span><span class="s2">: </span><span class="s1">files</span><span class="s2">) {</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">file</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">().</span><span class="s1">toLowerCase</span><span class="s2">().</span><span class="s1">contains</span><span class="s2">(</span><span class="s1">keyword</span><span class="s2">)) {</span>
+                        <span class="s0">return </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getAbsolutePath</span><span class="s2">();</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">err</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;Could not find image with keyword: &quot; </span><span class="s2">+ </span><span class="s1">keyword</span><span class="s2">);</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Helper method to find music files reliably</span>
+    <span class="s0">public static </span><span class="s1">String findMusicPath</span><span class="s2">(</span><span class="s1">String keyword</span><span class="s2">) {</span>
+        <span class="s1">String projectPath </span><span class="s2">= </span><span class="s1">System</span><span class="s2">.</span><span class="s1">getProperty</span><span class="s2">(</span><span class="s4">&quot;user.dir&quot;</span><span class="s2">);</span>
+        <span class="s1">File resourcesDir </span><span class="s2">= </span><span class="s0">new </span><span class="s1">File</span><span class="s2">(</span><span class="s1">projectPath</span><span class="s2">, </span><span class="s4">&quot;resources/music&quot;</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">exists</span><span class="s2">() &amp;&amp; </span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">isDirectory</span><span class="s2">()) {</span>
+            <span class="s1">File</span><span class="s2">[] </span><span class="s1">files </span><span class="s2">= </span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">listFiles</span><span class="s2">();</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">files </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+                <span class="s0">for </span><span class="s2">(</span><span class="s1">File file </span><span class="s2">: </span><span class="s1">files</span><span class="s2">) {</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">file</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">().</span><span class="s1">toLowerCase</span><span class="s2">().</span><span class="s1">contains</span><span class="s2">(</span><span class="s1">keyword</span><span class="s2">)) {</span>
+                        <span class="s0">return </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getAbsolutePath</span><span class="s2">();</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">err</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;Could not find music with keyword: &quot; </span><span class="s2">+ </span><span class="s1">keyword</span><span class="s2">);</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// A method to find sound effects</span>
+    <span class="s0">public static </span><span class="s1">String findSfxPath</span><span class="s2">(</span><span class="s1">String keyword</span><span class="s2">) {</span>
+        <span class="s1">String projectPath </span><span class="s2">= </span><span class="s1">System</span><span class="s2">.</span><span class="s1">getProperty</span><span class="s2">(</span><span class="s4">&quot;user.dir&quot;</span><span class="s2">);</span>
+        <span class="s1">File resourcesDir </span><span class="s2">= </span><span class="s0">new </span><span class="s1">File</span><span class="s2">(</span><span class="s1">projectPath</span><span class="s2">, </span><span class="s4">&quot;resources/sfx&quot;</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">exists</span><span class="s2">() &amp;&amp; </span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">isDirectory</span><span class="s2">()) {</span>
+            <span class="s1">File</span><span class="s2">[] </span><span class="s1">files </span><span class="s2">= </span><span class="s1">resourcesDir</span><span class="s2">.</span><span class="s1">listFiles</span><span class="s2">();</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">files </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+                <span class="s0">for </span><span class="s2">(</span><span class="s1">File file </span><span class="s2">: </span><span class="s1">files</span><span class="s2">) {</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">file</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">().</span><span class="s1">toLowerCase</span><span class="s2">().</span><span class="s1">contains</span><span class="s2">(</span><span class="s1">keyword</span><span class="s2">)) {</span>
+                        <span class="s0">return </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getAbsolutePath</span><span class="s2">();</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">err</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;Could not find SFX with keyword: &quot; </span><span class="s2">+ </span><span class="s1">keyword</span><span class="s2">);</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// --- REUSABLE METHOD ---</span>
+    <span class="s5">/**</span>
+     <span class="s5">* Finds and plays a sound effect file from the 'sfx' folder.</span>
+     <span class="s5">* </span><span class="s6">@param </span><span class="s5">keyword The keyword in the SFX file name (e.g., &quot;button_hover_sfx&quot;)</span>
+     <span class="s5">*/</span>
+    <span class="s0">public static void </span><span class="s1">playSound</span><span class="s2">(</span><span class="s1">String keyword</span><span class="s2">) {</span>
+        <span class="s1">String sfxPath </span><span class="s2">= </span><span class="s1">findSfxPath</span><span class="s2">(</span><span class="s1">keyword</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">sfxPath </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">soundManager</span><span class="s2">.</span><span class="s1">playSfx</span><span class="s2">(</span><span class="s1">sfxPath</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    <span class="s3">// --- END NEW METHOD ---</span>
+
+
+    <span class="s3">// Helper method to create a styled menu button</span>
+    <span class="s0">public static </span><span class="s1">JButton createMenuButton</span><span class="s2">(</span><span class="s1">String text</span><span class="s2">) {</span>
+
+        <span class="s1">JButton button </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JButton</span><span class="s2">(</span><span class="s1">text</span><span class="s2">) {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">protected void </span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">Graphics g</span><span class="s2">) {</span>
+                <span class="s3">// (Custom shadow painting code)</span>
+                <span class="s1">Graphics2D g2 </span><span class="s2">= (</span><span class="s1">Graphics2D</span><span class="s2">) </span><span class="s1">g</span><span class="s2">.</span><span class="s1">create</span><span class="s2">();</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setRenderingHint</span><span class="s2">(</span><span class="s1">RenderingHints</span><span class="s2">.</span><span class="s1">KEY_TEXT_ANTIALIASING</span><span class="s2">, </span><span class="s1">RenderingHints</span><span class="s2">.</span><span class="s1">VALUE_TEXT_ANTIALIAS_ON</span><span class="s2">);</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getFont</span><span class="s2">());</span>
+                <span class="s1">FontMetrics fm </span><span class="s2">= </span><span class="s1">g2</span><span class="s2">.</span><span class="s1">getFontMetrics</span><span class="s2">();</span>
+                <span class="s0">int </span><span class="s1">stringWidth </span><span class="s2">= </span><span class="s1">fm</span><span class="s2">.</span><span class="s1">stringWidth</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">());</span>
+                <span class="s0">int </span><span class="s1">componentWidth </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">getWidth</span><span class="s2">();</span>
+                <span class="s0">int </span><span class="s1">x</span><span class="s2">;</span>
+                <span class="s0">int </span><span class="s1">alignment </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">getHorizontalAlignment</span><span class="s2">();</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">alignment </span><span class="s2">== </span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">) {</span>
+                    <span class="s1">x </span><span class="s2">= (</span><span class="s1">componentWidth </span><span class="s2">- </span><span class="s1">stringWidth</span><span class="s2">) / </span><span class="s7">2</span><span class="s2">;</span>
+                <span class="s2">} </span><span class="s0">else if </span><span class="s2">(</span><span class="s1">alignment </span><span class="s2">== </span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">RIGHT</span><span class="s2">) {</span>
+                    <span class="s1">x </span><span class="s2">= </span><span class="s1">componentWidth </span><span class="s2">- </span><span class="s1">stringWidth</span><span class="s2">;</span>
+                <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                    <span class="s1">x </span><span class="s2">= </span><span class="s7">0</span><span class="s2">;</span>
+                <span class="s2">}</span>
+                <span class="s0">int </span><span class="s1">y </span><span class="s2">= (</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">() - </span><span class="s1">fm</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">()) / </span><span class="s7">2 </span><span class="s2">+ </span><span class="s1">fm</span><span class="s2">.</span><span class="s1">getAscent</span><span class="s2">();</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Color</span><span class="s2">(</span><span class="s7">0</span><span class="s2">, </span><span class="s7">0</span><span class="s2">, </span><span class="s7">0</span><span class="s2">, </span><span class="s7">150</span><span class="s2">));</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">drawString</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">(), </span><span class="s1">x </span><span class="s2">+ </span><span class="s7">2</span><span class="s2">, </span><span class="s1">y </span><span class="s2">+ </span><span class="s7">2</span><span class="s2">); </span><span class="s3">// Using 2px offset</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getForeground</span><span class="s2">());</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">drawString</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">(), </span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">);</span>
+                <span class="s1">g2</span><span class="s2">.</span><span class="s1">dispose</span><span class="s2">();</span>
+            <span class="s2">}</span>
+        <span class="s2">};</span>
+
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setForeground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">white</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s7">44</span><span class="s2">)); </span><span class="s3">// Larger font</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setOpaque</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setContentAreaFilled</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setBorderPainted</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setFocusPainted</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">setHorizontalAlignment</span><span class="s2">(</span><span class="s1">SwingConstants</span><span class="s2">.</span><span class="s1">LEFT</span><span class="s2">);</span>
+
+        <span class="s0">final </span><span class="s1">Font originalFont </span><span class="s2">= </span><span class="s1">button</span><span class="s2">.</span><span class="s1">getFont</span><span class="s2">();</span>
+        <span class="s0">final </span><span class="s1">Font hoverFont </span><span class="s2">= </span><span class="s1">originalFont</span><span class="s2">.</span><span class="s1">deriveFont</span><span class="s2">(</span><span class="s1">Font</span><span class="s2">.</span><span class="s1">PLAIN</span><span class="s2">, </span><span class="s7">48f</span><span class="s2">); </span><span class="s3">// Larger hover font</span>
+
+        <span class="s3">// --- MOUSE LISTENER ---</span>
+        <span class="s1">button</span><span class="s2">.</span><span class="s1">addMouseListener</span><span class="s2">(</span><span class="s0">new </span><span class="s1">MouseAdapter</span><span class="s2">() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">mouseEntered</span><span class="s2">(</span><span class="s1">MouseEvent evt</span><span class="s2">) {</span>
+                <span class="s1">button</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">hoverFont</span><span class="s2">);</span>
+                <span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;button_hover_sfx&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">mouseExited</span><span class="s2">(</span><span class="s1">MouseEvent evt</span><span class="s2">) {</span>
+                <span class="s1">button</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s1">originalFont</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">mousePressed</span><span class="s2">(</span><span class="s1">MouseEvent evt</span><span class="s2">) {</span>
+                <span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;button_press_sfx&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+        <span class="s3">// --- END OF MOUSE LISTENER ---</span>
+
+        <span class="s0">return </span><span class="s1">button</span><span class="s2">;</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>
