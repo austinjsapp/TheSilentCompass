@@ -21,6 +21,8 @@ public class GameScreenPanel extends JPanel {
     private Player player;
     private Enemy currentEnemy;
 
+    private ShadowLabel hpBonusLabel, damageBonusLabel;
+
     private String newWeaponFound;
     private GameLocation postWeaponChoicePosition;
 
@@ -34,7 +36,10 @@ public class GameScreenPanel extends JPanel {
         DECISION_RIVER_DAMAGE, FIND_PENDANT, AFTER_PENDANT,
         DECISION_FINAL, BRIDGE_CROSS_SUCCESS, ENDING_ESCAPE, ENDING_RESCUE, ENDING_LOST,
         LOSE, THANK_YOU,
-        WEAPON_CHOICE
+        WEAPON_CHOICE,
+
+        MURKY_DELTA, DELTA_ISLAND, FIND_MAIN_CHANNEL, GIANT_CRAB_ENCOUNTER,
+        ANCIENT_RUINS, RUINS_CRYPT, RUINS_BUILDING, STALKER_ENCOUNTER, AFTER_STALKER_FIGHT
     }
 
     private GameLocation position;
@@ -47,32 +52,61 @@ public class GameScreenPanel extends JPanel {
         this.setLayout(null);
         this.random = new Random();
 
-        this.player = new Player(20, "Pocket Knife");
+        final int HEADER_Y = 15;
+        final int COMPONENT_HEIGHT = 50;
 
-        backgroundPanel = new ImagePanel(null);
-        backgroundPanel.setBounds(0, 0, 800, 600);
 
         JPanel playerPanel = new JPanel();
-        playerPanel.setBounds(50, 15, 700, 50);
+        playerPanel.setBounds(50, HEADER_Y, 700, COMPONENT_HEIGHT);
         playerPanel.setOpaque(false);
-        playerPanel.setLayout(new GridLayout(1, 4));
+        playerPanel.setLayout(null);
+
+        // --- FIXED BOUNDS (Shifted Weapon Section Left) ---
 
         ShadowLabel hpLabel = new ShadowLabel("Health:");
         hpLabel.setForeground(Color.white); hpLabel.setFont(gameFont);
+        hpLabel.setBounds(0, 0, 100, COMPONENT_HEIGHT);
         playerPanel.add(hpLabel);
 
         hpLabelNumber = new ShadowLabel("");
         hpLabelNumber.setForeground(Color.white);
         hpLabelNumber.setFont(gameFont);
+        hpLabelNumber.setBounds(100, 0, 35, COMPONENT_HEIGHT); // Slightly wider for double digits
         playerPanel.add(hpLabelNumber);
+
+        hpBonusLabel = new ShadowLabel("");
+        hpBonusLabel.setForeground(new Color(150, 255, 150));
+        hpBonusLabel.setFont(gameFont);
+        hpBonusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        // Added 5px gap for space (start at 135)
+        hpBonusLabel.setBounds(135, 0, 100, COMPONENT_HEIGHT);
+        playerPanel.add(hpBonusLabel);
+
+        // --- WEAPON SECTION (x=280 onwards) ---
+        // Moved the start of this section from 300 to 280
 
         ShadowLabel weaponLabel = new ShadowLabel("Weapon:");
         weaponLabel.setForeground(Color.white); weaponLabel.setFont(gameFont);
+        weaponLabel.setBounds(280, 0, 100, COMPONENT_HEIGHT); // Shifted left
         playerPanel.add(weaponLabel);
 
         weaponLabelName = new ShadowLabel("");
         weaponLabelName.setForeground(Color.white); weaponLabelName.setFont(gameFont);
+        weaponLabelName.setBounds(380, 0, 170, COMPONENT_HEIGHT); // Shifted left
         playerPanel.add(weaponLabelName);
+
+        damageBonusLabel = new ShadowLabel("");
+        damageBonusLabel.setForeground(new Color(255, 150, 150));
+        damageBonusLabel.setFont(gameFont);
+        damageBonusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        // Added 5px gap for space (start at 555), increased width
+        damageBonusLabel.setBounds(555, 0, 150, COMPONENT_HEIGHT);
+        playerPanel.add(damageBonusLabel);
+        // --- END FIXED BOUNDS ---
+
+
+        this.player = new Player(20, "Pocket Knife");
+
 
         mainTextArea = new JTextArea("");
         mainTextArea.setFont(new Font("Serif", Font.PLAIN, 24));
@@ -80,10 +114,10 @@ public class GameScreenPanel extends JPanel {
         mainTextArea.setOpaque(false); mainTextArea.setEditable(false);
         mainTextArea.setWrapStyleWord(true); mainTextArea.setLineWrap(true);
         mainTextArea.setFocusable(false);
-        mainTextArea.setBounds(75, 80, 650, 250);
+        mainTextArea.setBounds(75, 80, 650, 270);
 
         JPanel choiceButtonPanel = new JPanel();
-        choiceButtonPanel.setBounds(75, 340, 650, 200);
+        choiceButtonPanel.setBounds(75, 360, 650, 200);
         choiceButtonPanel.setOpaque(false);
         choiceButtonPanel.setLayout(new GridLayout(4, 1, 0, 10));
 
@@ -96,6 +130,9 @@ public class GameScreenPanel extends JPanel {
         this.add(playerPanel);
         this.add(mainTextArea);
         this.add(choiceButtonPanel);
+
+        backgroundPanel = new ImagePanel(null);
+        backgroundPanel.setBounds(0, 0, 800, 600);
         this.add(backgroundPanel);
 
         playerSetup();
@@ -184,6 +221,7 @@ public class GameScreenPanel extends JPanel {
         weaponLabelName.setText(player.getWeapon());
         hpLabelNumber.setText("" + player.getHp());
         hpLabelNumber.setFont(gameFont);
+
         startGameNode();
     }
 
@@ -213,6 +251,15 @@ public class GameScreenPanel extends JPanel {
                 break;
             case DECISION_JUNGLE:
                 decisionJungle();
+                break;
+            case MURKY_DELTA:
+                murkyDelta();
+                break;
+            case ANCIENT_RUINS:
+                ancientRuins();
+                break;
+            case AFTER_STALKER_FIGHT:
+                afterStalkerFight();
                 break;
             default:
                 decisionStart();
@@ -362,7 +409,7 @@ public class GameScreenPanel extends JPanel {
         this.postWeaponChoicePosition = nextPosition;
 
         String currentWeaponName = player.getWeapon();
-        String currentDamage = player.getAttackDamageRange(currentWeaponName);
+        String currentDamage = player.getAttackDamageRange();
         String newDamage = player.getAttackDamageRange(newWeaponName);
 
         mainTextArea.setText("You found a " + newWeaponName + "!");
@@ -408,7 +455,7 @@ public class GameScreenPanel extends JPanel {
             player.takeDamage(damage);
             hpLabelNumber.setText("" + player.getHp());
 
-            mainTextArea.append("\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost " + damage + " Health)");
+            mainTextArea.append("\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost 2 Health)");
 
             if (!player.isAlive()) {
                 lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
@@ -466,7 +513,60 @@ public class GameScreenPanel extends JPanel {
         position = GameLocation.DECISION_RIVER_DAMAGE;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText("After the fight with the snake, you are tired. The path ahead looks long.");
-        setChoices("Continue along the river", "Go back to the jungle path", "", "");
+        setChoices("Continue into the murky delta", "Go back to the jungle path", "", "");
+    }
+
+    public void murkyDelta() {
+        position = GameLocation.MURKY_DELTA;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("The river splits into a maze of small, murky channels. You see a glint on a small island, but also hear a strange clicking sound from the mangroves.");
+        setChoices("Try to reach the island (Risky)", "Follow the clicking sound (Crab)", "Try to find the main channel", "");
+    }
+
+    public void deltaIsland() {
+        position = GameLocation.DELTA_ISLAND;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        int chance = random.nextInt(100);
+
+        if (chance < 40 && !player.hasWhetstone()) {
+            mainTextArea.setText("You find a smooth Whetstone on the shore!\n\n(Your weapons will now do +1 minimum damage!)");
+            player.setHasWhetstone(true);
+            setChoices("Return to the delta", "", "", "");
+        } else if (chance < 70 && !player.hasToughHide()) {
+            mainTextArea.setText("You find a thick, leathery hide on the island. It looks durable.\n\n(Your Max HP has permanently increased by 5!)");
+            player.setHasToughHide(true);
+            setChoices("Return to the delta", "", "", "");
+        } else {
+            mainTextArea.setText("You step onto the island and a Giant Crab bursts from the sand!");
+            setChoices("Fight!", "", "", "");
+        }
+    }
+
+    public void findMainChannel() {
+        position = GameLocation.FIND_MAIN_CHANNEL;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        if (random.nextInt(100) < 50) {
+            mainTextArea.setText("You navigate the maze and find the main river channel again. It leads to a high ridge.");
+            setChoices("Continue to the ridge", "", "", "");
+        } else {
+            mainTextArea.setText("You get lost in the mangroves and cut yourself on sharp shells.\n(You lost 2 Health)");
+            player.takeDamage(2);
+            hpLabelNumber.setText("" + player.getHp());
+            if (!player.isAlive()) {
+                lose("You succumb to your injuries in the delta. Game Over.");
+            } else {
+                setChoices("Try again", "", "", "");
+            }
+        }
+    }
+
+    public void giantCrabEncounter() {
+        position = GameLocation.ENEMY_ENCOUNTER;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        currentEnemy = new Enemy("Giant Crab", 15 + random.nextInt(4));
+        postCombatPosition = GameLocation.MURKY_DELTA;
+        mainTextArea.setText("A " + currentEnemy.getName() + " emerges, snapping its huge claws!");
+        setChoices("Fight", "Try to flee", "", "");
     }
 
     public void findPendant() {
@@ -487,9 +587,67 @@ public class GameScreenPanel extends JPanel {
     public void afterPendant() {
         position = GameLocation.AFTER_PENDANT;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        mainTextArea.setText("You pocket the pendant. It feels strangely important.\nThe path continues from the camp, up a steep hill.");
-        setChoices("Continue", "", "", "");
+        mainTextArea.setText("You pocket the pendant. It feels strangely important.\nThe path from the camp leads to crumbling stone ruins covered in vines.");
+        setChoices("Explore the ruins", "", "", "");
     }
+
+    public void ancientRuins() {
+        position = GameLocation.ANCIENT_RUINS;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You stand in a vine-choked courtyard. There is a dark stairway leading down, a large stone building, and a path continuing up the hill.");
+        setChoices("Explore the dark stairway (Stalker)", "Search the stone building", "Follow the path up the hill", "");
+    }
+
+    public void ruinsCrypt() {
+        position = GameLocation.RUINS_CRYPT;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You descend into the darkness. A pair of glowing eyes snaps open in the shadows... A Jungle Stalker attacks!");
+        setChoices("Fight!", "", "", "");
+    }
+
+    public void stalkerEncounter() {
+        position = GameLocation.ENEMY_ENCOUNTER;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        currentEnemy = new Enemy("Jungle Stalker", 25 + random.nextInt(6));
+        postCombatPosition = GameLocation.AFTER_STALKER_FIGHT;
+        mainTextArea.setText("The " + currentEnemy.getName() + " lunges from the shadows!");
+        setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void afterStalkerFight() {
+        position = GameLocation.AFTER_SPIDER_FIGHT;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("The stalker dissolves into shadows. It dropped a sharp Obsidian Dagger!");
+
+        String newWeapon = "Obsidian Dagger";
+        if (player.getWeapon().equals(newWeapon)) {
+            mainTextArea.append("\n...But you already have one.");
+            setChoices("Return to courtyard", "", "", "");
+        } else {
+            weaponChoice(newWeapon, GameLocation.ANCIENT_RUINS);
+        }
+    }
+
+    public void ruinsBuilding() {
+        position = GameLocation.RUINS_BUILDING;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+
+        if (player.getWeapon().equals("Obsidian Dagger")) {
+            mainTextArea.setText("You search the crumbling building and find a pristine First Aid Kit!\n\n(Healed 10 Health)");
+            player.heal(random, 10, 0);
+            hpLabelNumber.setText("" + player.getHp());
+        } else if (!player.hasWhetstone()) {
+            mainTextArea.setText("You search the building and find a strange, smooth Whetstone!\n\n(Your weapons will now do +1 minimum damage!)");
+            player.setHasWhetstone(true);
+        } else if (!player.hasToughHide()) {
+            mainTextArea.setText("You search the building and find a tough, leathery hide.\n\n(Your Max HP has permanently increased by 5!)");
+            player.setHasToughHide(true);
+        } else {
+            mainTextArea.setText("The building is empty, save for dust and echoes.");
+        }
+        setChoices("Return to courtyard", "", "", "");
+    }
+
 
     public void decisionFinal() {
         position = GameLocation.DECISION_FINAL;
@@ -725,16 +883,57 @@ public class GameScreenPanel extends JPanel {
 
                 case DECISION_RIVER_DAMAGE:
                     switch (yourChoice) {
-                        case "c1": decisionFinal(); break;
+                        case "c1": murkyDelta(); break;
                         case "c2": junglePath(); break;
                     }
                     break;
 
+                case MURKY_DELTA:
+                    switch (yourChoice) {
+                        case "c1": deltaIsland(); break;
+                        case "c2": giantCrabEncounter(); break;
+                        case "c3": findMainChannel(); break;
+                    }
+                    break;
+                case DELTA_ISLAND:
+                    if (yourChoice.equals("c1")) {
+                        if (mainTextArea.getText().contains("bursts from the sand")) {
+                            giantCrabEncounter();
+                        } else {
+                            murkyDelta();
+                        }
+                    }
+                    break;
+                case FIND_MAIN_CHANNEL:
+                    if (yourChoice.equals("c1")) {
+                        if (mainTextArea.getText().contains("ridge")) {
+                            decisionFinal();
+                        } else {
+                            murkyDelta();
+                        }
+                    }
+                    break;
                 case FIND_PENDANT:
                     if (yourChoice.equals("c1")) { afterPendant(); }
                     break;
                 case AFTER_PENDANT:
-                    if (yourChoice.equals("c1")) { decisionFinal(); }
+                    if (yourChoice.equals("c1")) { ancientRuins(); }
+                    break;
+                case ANCIENT_RUINS:
+                    switch (yourChoice) {
+                        case "c1": ruinsCrypt(); break;
+                        case "c2": ruinsBuilding(); break;
+                        case "c3": decisionFinal(); break;
+                    }
+                    break;
+                case RUINS_CRYPT:
+                    if (yourChoice.equals("c1")) { stalkerEncounter(); }
+                    break;
+                case RUINS_BUILDING:
+                    if (yourChoice.equals("c1")) { ancientRuins(); }
+                    break;
+                case AFTER_STALKER_FIGHT:
+                    if (yourChoice.equals("c1")) { ancientRuins(); }
                     break;
 
                 case DECISION_FINAL:
@@ -777,27 +976,22 @@ public class GameScreenPanel extends JPanel {
                     resumePath(postWeaponChoicePosition);
                     break;
 
-                // --- UPDATED ---
                 case ENEMY_ENCOUNTER:
                     if (yourChoice.equals("c1")) { fight(); }
                     else if (yourChoice.equals("c2")) {
-                        // Changed 40 to 25 to make fleeing harder
                         fleeResult(random.nextInt(100) < 25);
                     }
                     break;
 
-                // --- UPDATED ---
                 case FIGHT:
                     switch (yourChoice) {
                         case "c1": playerAttack(); break;
                         case "c2": playerHeal(); break;
                         case "c3":
-                            // Changed 40 to 25 to make fleeing harder
                             fleeResult(random.nextInt(100) < 25);
                             break;
                     }
                     break;
-                // --- END UPDATED ---
 
                 case PLAYER_ATTACK:
                     if (!currentEnemy.isAlive()) {
@@ -833,22 +1027,33 @@ public class GameScreenPanel extends JPanel {
     private class Player {
         private int hp;
         private int maxHp;
+        private int baseMaxHp;
         private String weapon;
         private boolean hasPendant;
         private boolean hasCompass;
+        private boolean hasWhetstone;
+        private boolean hasToughHide;
 
         public Player(int maxHp, String startWeapon) {
-            this.maxHp = maxHp;
+            this.baseMaxHp = maxHp;
+            this.maxHp = baseMaxHp;
             this.weapon = startWeapon;
+
             reset(maxHp, startWeapon);
         }
 
         public void reset(int maxHp, String startWeapon) {
-            this.maxHp = maxHp;
+            this.baseMaxHp = maxHp;
+            this.maxHp = this.baseMaxHp;
             this.hp = this.maxHp;
             this.weapon = startWeapon;
             this.hasPendant = false;
             this.hasCompass = false;
+            this.hasWhetstone = false;
+            this.hasToughHide = false;
+
+            hpBonusLabel.setText("");
+            damageBonusLabel.setText("");
         }
 
         public void takeDamage(int amount) {
@@ -869,31 +1074,38 @@ public class GameScreenPanel extends JPanel {
         }
 
         public int getAttackDamage(Random rand) {
+            int minDamageBonus = hasWhetstone ? 1 : 0;
+
             if (weapon.equals("Machete")) {
-                return rand.nextInt(8) + 3;
+                return rand.nextInt(8) + 3 + minDamageBonus;
+            } else if (weapon.equals("Obsidian Dagger")) {
+                return rand.nextInt(5) + 4 + minDamageBonus;
             } else if (weapon.equals("Makeshift Spear")) {
-                return rand.nextInt(6) + 2;
+                return rand.nextInt(6) + 2 + minDamageBonus;
             } else if (weapon.equals("Rusty Pipe")) {
-                return rand.nextInt(5) + 2;
-            } else {
-                return rand.nextInt(4) + 1;
+                return rand.nextInt(5) + 2 + minDamageBonus;
+            } else { // Pocket Knife
+                return rand.nextInt(4) + 1 + minDamageBonus;
             }
         }
 
         public String getAttackDamageRange(String weaponName) {
+            int minBonus = this.hasWhetstone ? 1 : 0;
             if (weaponName.equals("Machete")) {
-                return "3-10";
+                return (3 + minBonus) + "-10";
+            } else if (weaponName.equals("Obsidian Dagger")) {
+                return (4 + minBonus) + "-8";
             } else if (weaponName.equals("Makeshift Spear")) {
-                return "2-7";
+                return (2 + minBonus) + "-7";
             } else if (weaponName.equals("Rusty Pipe")) {
-                return "2-6";
+                return (2 + minBonus) + "-6";
             } else if (weaponName.equals("Pocket Knife")) {
-                return "1-4";
+                return (1 + minBonus) + "-4";
             }
             return "0-0";
         }
 
-        public String getCurrentWeaponDamageRange() {
+        public String getAttackDamageRange() {
             return getAttackDamageRange(this.weapon);
         }
 
@@ -908,6 +1120,35 @@ public class GameScreenPanel extends JPanel {
         public void setHasPendant(boolean has) { this.hasPendant = has; }
         public boolean hasCompass() { return this.hasCompass; }
         public void setHasCompass(boolean has) { this.hasCompass = has; }
+
+        public boolean hasWhetstone() { return this.hasWhetstone; }
+        public void setHasWhetstone(boolean has) {
+            this.hasWhetstone = has;
+            if (has) {
+                damageBonusLabel.setText("(+1 Damage)");
+            } else {
+                damageBonusLabel.setText("");
+            }
+        }
+
+        public boolean hasToughHide() { return this.hasToughHide; }
+        public void setHasToughHide(boolean has) {
+            if (has && !this.hasToughHide) {
+                this.hasToughHide = true;
+                this.baseMaxHp += 5;
+                this.maxHp = this.baseMaxHp;
+                this.hp += 5;
+                hpBonusLabel.setText("(+5 HP)");
+            } else if (!has && this.hasToughHide) {
+                this.hasToughHide = false;
+                this.baseMaxHp -= 5;
+                this.maxHp = this.baseMaxHp;
+                hpBonusLabel.setText("");
+            }
+
+            if (this.hp > this.maxHp) { this.hp = this.maxHp; }
+            hpLabelNumber.setText("" + this.hp);
+        }
     }
 
     private class Enemy {
@@ -927,12 +1168,16 @@ public class GameScreenPanel extends JPanel {
         }
 
         public int getAttackDamage(Random rand) {
-            if (name.equals("Jaguar")) {
+            if (name.equals("Jungle Stalker")) {
+                return rand.nextInt(4) + 3;
+            } else if (name.equals("Jaguar")) {
                 return rand.nextInt(5) + 2;
-            } else if (name.equals("Giant Snake")) {
-                return rand.nextInt(4) + 1;
             } else if (name.equals("Wild Boar")) {
                 return rand.nextInt(4) + 2;
+            } else if (name.equals("Giant Crab")) {
+                return rand.nextInt(4) + 2;
+            } else if (name.equals("Giant Snake")) {
+                return rand.nextInt(4) + 1;
             } else if (name.equals("Large Spider")) {
                 return rand.nextInt(3) + 1;
             }
