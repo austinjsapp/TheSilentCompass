@@ -21,15 +21,20 @@ public class GameScreenPanel extends JPanel {
     private Player player;
     private Enemy currentEnemy;
 
+    private String newWeaponFound;
+    private GameLocation postWeaponChoicePosition;
+
     private enum GameLocation {
-        START, DECISION_START, SEARCH_WRECKAGE, AFTER_WRECKAGE_DECISION,
-        RIVER_PATH, DECISION_RIVER, JUNGLE_PATH, DECISION_JUNGLE,
-        SWAMP_PATH_DAMAGE, FIND_KIT_2, FIND_KIT_3,
+        START, DECISION_START, SEARCH_WRECKAGE, WRECKAGE_DANGER, SEARCH_WRECKAGE_BAG, AFTER_WRECKAGE_DECISION,
+        RIVER_PATH, DECISION_RIVER, RIVER_PATH_CONTINUED, WATERFALL_CAVE, INSIDE_CAVE, BOAR_ENCOUNTER,
+        JUNGLE_PATH, FIND_SPEAR, DECISION_JUNGLE, GIANT_TREE, SPIDER_ENCOUNTER, AFTER_SPIDER_FIGHT,
+        QUICKSAND_SWAMP, FIND_KIT_2, FIND_KIT_3,
         ENEMY_ENCOUNTER, FIGHT, PLAYER_ATTACK, PLAYER_HEAL, ENEMY_ATTACK,
         WIN_FIGHT, FLEE_RESULT, ENEMY_ATTACK_DISPLAY,
         DECISION_RIVER_DAMAGE, FIND_PENDANT, AFTER_PENDANT,
-        DECISION_FINAL, ENDING_ESCAPE, ENDING_RESCUE, ENDING_LOST,
-        LOSE, THANK_YOU, TEMP_TRIBUTARY
+        DECISION_FINAL, BRIDGE_CROSS_SUCCESS, ENDING_ESCAPE, ENDING_RESCUE, ENDING_LOST,
+        LOSE, THANK_YOU,
+        WEAPON_CHOICE
     }
 
     private GameLocation position;
@@ -57,7 +62,8 @@ public class GameScreenPanel extends JPanel {
         playerPanel.add(hpLabel);
 
         hpLabelNumber = new ShadowLabel("");
-        hpLabelNumber.setForeground(Color.white); hpLabelNumber.setFont(gameFont);
+        hpLabelNumber.setForeground(Color.white);
+        hpLabelNumber.setFont(gameFont);
         playerPanel.add(hpLabelNumber);
 
         ShadowLabel weaponLabel = new ShadowLabel("Weapon:");
@@ -177,6 +183,7 @@ public class GameScreenPanel extends JPanel {
         player.reset(20, "Pocket Knife");
         weaponLabelName.setText(player.getWeapon());
         hpLabelNumber.setText("" + player.getHp());
+        hpLabelNumber.setFont(gameFont);
         startGameNode();
     }
 
@@ -194,6 +201,18 @@ public class GameScreenPanel extends JPanel {
                 break;
             case FIND_PENDANT:
                 findPendant();
+                break;
+            case RIVER_PATH_CONTINUED:
+                riverPathContinued();
+                break;
+            case AFTER_SPIDER_FIGHT:
+                afterSpiderFight();
+                break;
+            case AFTER_WRECKAGE_DECISION:
+                afterWreckageDecision();
+                break;
+            case DECISION_JUNGLE:
+                decisionJungle();
                 break;
             default:
                 decisionStart();
@@ -218,22 +237,47 @@ public class GameScreenPanel extends JPanel {
     public void searchWreckage() {
         position = GameLocation.SEARCH_WRECKAGE;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("The wreckage is unstable. You see a glint of metal under a heavy plank and a mostly-dry bag.");
+        setChoices("Try for the metal (Dangerous)", "Check the dry bag", "Leave it alone", "");
+    }
 
-        if (player.getWeapon().equals("Pocket Knife")) {
-            mainTextArea.setText("Amidst the debris, you find a sturdy Machete!\n\n(You obtained a Machete)");
-            player.setWeapon("Machete");
-            weaponLabelName.setText(player.getWeapon());
+    public void wreckageDanger() {
+        position = GameLocation.WRECKAGE_DANGER;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+
+        int chance = random.nextInt(100);
+
+        if (chance < 30) {
+            lose("You try to move the plank, but the whole pile shifts and crushes you. Game Over.");
+        } else if (chance < 70) {
+            String newWeapon = "Rusty Pipe";
+            if (player.getWeapon().equals(newWeapon)) {
+                mainTextArea.setText("You carefully pull a... Rusty Pipe! But you already have one.");
+                setChoices("Continue", "", "", "");
+            } else {
+                weaponChoice(newWeapon, GameLocation.AFTER_WRECKAGE_DECISION);
+            }
         } else {
-            mainTextArea.setText("You find some soggy supplies, nothing else useful.");
+            mainTextArea.setText("You cut your hand on a sharp edge but find nothing useful.\n(You lost 2 Health)");
+            player.takeDamage(2);
+            hpLabelNumber.setText("" + player.getHp());
+            setChoices("Continue", "", "", "");
         }
+    }
 
+    public void searchWreckageBag() {
+        position = GameLocation.SEARCH_WRECKAGE_BAG;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You find a soggy First Aid Kit! You use the remaining supplies.\n(Healed 5 Health)");
+        player.heal(random, 5, 0);
+        hpLabelNumber.setText("" + player.getHp());
         setChoices("Continue", "", "", "");
     }
 
     public void afterWreckageDecision() {
         position = GameLocation.AFTER_WRECKAGE_DECISION;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        mainTextArea.setText("You stash your findings and survey the area again.");
+        mainTextArea.setText("You step away from the wreckage and survey the area again.");
         setChoices("Follow the riverbank", "Head into the jungle", "", "");
     }
 
@@ -247,8 +291,35 @@ public class GameScreenPanel extends JPanel {
     public void decisionRiver() {
         position = GameLocation.DECISION_RIVER;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        mainTextArea.setText("You walk for an hour. The riverbank is muddy and difficult.\nYou hear a noise in the bushes.");
-        setChoices("Continue on riverbank (Encounter)", "Wander off into the jungle", "Find a place to rest", "");
+        mainTextArea.setText("You walk for an hour. The riverbank is muddy and difficult.\nYou hear a loud snorting noise in the bushes nearby.");
+        setChoices("Investigate the noise (Boar)", "Continue along riverbank", "Wander off into the jungle", "Find a place to rest");
+    }
+
+    public void riverPathContinued() {
+        position = GameLocation.RIVER_PATH_CONTINUED;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You continue along the main river. The bank is muddy. You see a small tributary breaking off to the left.");
+        setChoices("Follow main river (Snake)", "Explore the tributary", "Go back to the jungle path", "");
+    }
+
+    public void waterfallCave() {
+        position = GameLocation.WATERFALL_CAVE;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("The tributary leads to a small, beautiful waterfall. You notice a dark opening behind the curtain of water.");
+        setChoices("Investigate the cave", "Return to the river", "", "");
+    }
+
+    public void insideCave() {
+        position = GameLocation.INSIDE_CAVE;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+
+        String newWeapon = "Machete";
+        if (player.getWeapon().equals(newWeapon)) {
+            mainTextArea.setText("You step inside. It's damp and empty. You already have a Machete.");
+            setChoices("Return to the river", "", "", "");
+        } else {
+            weaponChoice(newWeapon, GameLocation.RIVER_PATH_CONTINUED);
+        }
     }
 
     public void findKit2() {
@@ -263,15 +334,57 @@ public class GameScreenPanel extends JPanel {
     public void junglePath() {
         position = GameLocation.JUNGLE_PATH;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        mainTextArea.setText("You push your way into the dense, dark jungle. The sounds of insects and birds are deafening.");
-        setChoices("Continue", "", "", "");
+        mainTextArea.setText("You push your way into the dense, dark jungle. The sounds of insects and birds are deafening. You spot a long, sturdy-looking branch.");
+        setChoices("Take the branch", "Leave it and continue", "", "");
+    }
+
+    public void findSpear() {
+        String newWeapon = "Makeshift Spear";
+        if (player.getWeapon().equals(newWeapon)) {
+            mainTextArea.setText("You already have a spear.");
+            setChoices("Continue into the jungle", "", "", "");
+            position = GameLocation.FIND_SPEAR;
+        } else {
+            weaponChoice(newWeapon, GameLocation.DECISION_JUNGLE);
+        }
     }
 
     public void decisionJungle() {
         position = GameLocation.DECISION_JUNGLE;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText("You find a fork in the faint animal trail you've been following.");
-        setChoices("Go left, towards a rocky hill (Encounter)", "Go right, towards a swamp (Damage)", "Find a place to rest", "");
+        setChoices("Go left, towards a rocky hill (Jaguar)", "Go right, towards a swamp (Quicksand)", "Follow a strange noise (Giant Tree)", "Find a place to rest");
+    }
+
+    public void weaponChoice(String newWeaponName, GameLocation nextPosition) {
+        position = GameLocation.WEAPON_CHOICE;
+        this.newWeaponFound = newWeaponName;
+        this.postWeaponChoicePosition = nextPosition;
+
+        String currentWeaponName = player.getWeapon();
+        String currentDamage = player.getAttackDamageRange(currentWeaponName);
+        String newDamage = player.getAttackDamageRange(newWeaponName);
+
+        mainTextArea.setText("You found a " + newWeaponName + "!");
+
+        setChoices("Switch to " + newWeaponName + " (Damage: " + newDamage + ")",
+                "Keep " + currentWeaponName + " (Damage: " + currentDamage + ")",
+                "", "");
+    }
+
+    public void giantTree() {
+        position = GameLocation.GIANT_TREE;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You follow the skittering noise to a massive, ancient tree. A Large Spider descends from a thick web!");
+        setChoices("Fight the spider", "Run back to the fork", "", "");
+    }
+
+    public void afterSpiderFight() {
+        position = GameLocation.AFTER_SPIDER_FIGHT;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)");
+        player.setHasCompass(true);
+        setChoices("Return to the jungle fork", "", "", "");
     }
 
     public void findKit3() {
@@ -283,22 +396,37 @@ public class GameScreenPanel extends JPanel {
         setChoices("Continue", "", "", "");
     }
 
-    public void swampPathDamage() {
-        position = GameLocation.SWAMP_PATH_DAMAGE;
+    public void quicksandSwamp() {
+        position = GameLocation.QUICKSAND_SWAMP;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You head towards the swamp. The ground suddenly gives way! It's quicksand!");
+
+        if (random.nextInt(100) < 50) {
+            lose("You struggle, but the thick mud pulls you under. Game Over.");
+        } else {
+            int damage = random.nextInt(4) + 2;
+            player.takeDamage(damage);
+            hpLabelNumber.setText("" + player.getHp());
+
+            mainTextArea.append("\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost " + damage + " Health)");
+
+            if (!player.isAlive()) {
+                lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
+            } else {
+                setChoices("Return to the fork", "", "", "");
+            }
+        }
+    }
+
+    public void boarEncounter() {
+        position = GameLocation.ENEMY_ENCOUNTER;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
 
-        int damage = random.nextInt(3) + 2;
-        player.takeDamage(damage);
-        hpLabelNumber.setText("" + player.getHp());
+        currentEnemy = new Enemy("Wild Boar", 16 + random.nextInt(5));
+        postCombatPosition = GameLocation.RIVER_PATH_CONTINUED;
 
-        mainTextArea.setText("You head towards the swamp. The ground is soft and you twist your ankle struggling through the mud.\n\n(You lost " + damage + " Health)");
-
-        if (!player.isAlive()) {
-            lose("You succumbed to your injuries in the swamp. Game Over.");
-        } else {
-            mainTextArea.append("\nYou decide this is a bad idea and return to the fork.");
-            setChoices("Continue", "", "", "");
-        }
+        mainTextArea.setText("You push aside the bushes and a " + currentEnemy.getName() + " charges at you!");
+        setChoices("Fight", "Try to flee", "", "");
     }
 
     public void riverEncounter() {
@@ -323,11 +451,22 @@ public class GameScreenPanel extends JPanel {
         setChoices("Fight", "Try to flee", "", "");
     }
 
+    public void spiderEncounter() {
+        position = GameLocation.ENEMY_ENCOUNTER;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+
+        currentEnemy = new Enemy("Large Spider", 8 + random.nextInt(3));
+        postCombatPosition = GameLocation.AFTER_SPIDER_FIGHT;
+
+        mainTextArea.setText("You ready your " + player.getWeapon() + " against the " + currentEnemy.getName() + "!");
+        setChoices("Fight", "Try to flee", "", "");
+    }
+
     public void decisionRiverDamage() {
         position = GameLocation.DECISION_RIVER_DAMAGE;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        mainTextArea.setText("You nurse your wounds from the fight. The river seems to be widening. You see a small tributary breaking off to the left.");
-        setChoices("Follow the main river", "Explore the tributary", "Go back to the jungle path", "");
+        mainTextArea.setText("After the fight with the snake, you are tired. The path ahead looks long.");
+        setChoices("Continue along the river", "Go back to the jungle path", "", "");
     }
 
     public void findPendant() {
@@ -356,8 +495,15 @@ public class GameScreenPanel extends JPanel {
         position = GameLocation.DECISION_FINAL;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText("You've been walking for what feels like days. You are weak and tired.\nYou reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a chasm.");
-        setChoices("Head towards the smoke", "Try to cross the rope bridge", "Give up and stay here", "");
+        setChoices("Head towards the smoke", "Try to cross the rope bridge (50% Fail)", "Give up and stay here", "");
     }
+
+    public void bridgeCrossSuccess() {
+        position = GameLocation.BRIDGE_CROSS_SUCCESS;
+        backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        endingEscape();
+    }
+
 
     public void fight() {
         position = GameLocation.FIGHT;
@@ -383,7 +529,6 @@ public class GameScreenPanel extends JPanel {
 
         int healAmount = player.heal(random, 3, 5);
         hpLabelNumber.setText("" + player.getHp());
-
         mainTextArea.setText("You tend to your wounds, trying to recover.\n(Healed " + healAmount + " Health)");
         setChoices("Continue", "", "", "");
     }
@@ -431,13 +576,13 @@ public class GameScreenPanel extends JPanel {
         position = GameLocation.LOSE;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText(message + "\n\nGAME OVER");
-        setChoices("Restart", "", "", "");
+        setChoices("Restart", "Main Menu", "", "");
     }
 
     public void endingEscape() {
         position = GameLocation.ENDING_ESCAPE;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        mainTextArea.setText("You cross the bridge carefully. On the other side, you find a clear trail that leads you out of the jungle to a small village.\n\n(Escape Ending)");
+        mainTextArea.setText("On the other side, you find a clear trail that leads you out of the jungle to a small village.\n\n(Escape Ending)");
         setChoices("Continue", "", "", "");
     }
 
@@ -459,7 +604,7 @@ public class GameScreenPanel extends JPanel {
         position = GameLocation.THANK_YOU;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText("Thank you for playing!");
-        setChoices("Play Again?", "", "", "");
+        setChoices("Play Again?", "Main Menu", "", "");
     }
 
     public class ChoiceHandler implements ActionListener {
@@ -471,8 +616,12 @@ public class GameScreenPanel extends JPanel {
                 if (yourChoice.equals("c1")) {
                     playerSetup();
                 }
+                else if (yourChoice.equals("c2")) {
+                    game.showScreen("mainMenu");
+                }
                 return;
             }
+
             if (position == GameLocation.ENDING_ESCAPE || position == GameLocation.ENDING_RESCUE || position == GameLocation.ENDING_LOST) {
                 if (yourChoice.equals("c1")) {
                     thankYou();
@@ -501,6 +650,14 @@ public class GameScreenPanel extends JPanel {
                     break;
 
                 case SEARCH_WRECKAGE:
+                    switch (yourChoice) {
+                        case "c1": wreckageDanger(); break;
+                        case "c2": searchWreckageBag(); break;
+                        case "c3": afterWreckageDecision(); break;
+                    }
+                    break;
+                case WRECKAGE_DANGER:
+                case SEARCH_WRECKAGE_BAG:
                     if (yourChoice.equals("c1")) { afterWreckageDecision(); }
                     break;
                 case AFTER_WRECKAGE_DECISION:
@@ -513,45 +670,64 @@ public class GameScreenPanel extends JPanel {
                     break;
                 case DECISION_RIVER:
                     switch (yourChoice) {
-                        case "c1": riverEncounter(); break;
-                        case "c2": junglePath(); break;
-                        case "c3": findKit2(); break;
+                        case "c1": boarEncounter(); break;
+                        case "c2": riverPathContinued(); break;
+                        case "c3": junglePath(); break;
+                        case "c4": findKit2(); break;
                     }
+                    break;
+                case RIVER_PATH_CONTINUED:
+                    switch (yourChoice) {
+                        case "c1": riverEncounter(); break;
+                        case "c2": waterfallCave(); break;
+                        case "c3": junglePath(); break;
+                    }
+                    break;
+                case WATERFALL_CAVE:
+                    if (yourChoice.equals("c1")) { insideCave(); }
+                    else if (yourChoice.equals("c2")) { riverPathContinued(); }
+                    break;
+                case INSIDE_CAVE:
+                    if (yourChoice.equals("c1")) { riverPathContinued(); }
                     break;
                 case FIND_KIT_2:
                     if (yourChoice.equals("c1")) { decisionRiver(); }
                     break;
 
                 case JUNGLE_PATH:
+                    if (yourChoice.equals("c1")) { findSpear(); }
+                    else if (yourChoice.equals("c2")) { decisionJungle(); }
+                    break;
+                case FIND_SPEAR:
                     if (yourChoice.equals("c1")) { decisionJungle(); }
                     break;
                 case DECISION_JUNGLE:
                     switch (yourChoice) {
                         case "c1": jungleEncounter(); break;
-                        case "c2": swampPathDamage(); break;
-                        case "c3": findKit3(); break;
+                        case "c2": quicksandSwamp(); break;
+                        case "c3": giantTree(); break;
+                        case "c4": findKit3(); break;
                     }
+                    break;
+                case GIANT_TREE:
+                    if (yourChoice.equals("c1")) { spiderEncounter(); }
+                    else if (yourChoice.equals("c2")) { decisionJungle(); }
+                    break;
+                case AFTER_SPIDER_FIGHT:
+                    if (yourChoice.equals("c1")) { decisionJungle(); }
                     break;
                 case FIND_KIT_3:
                     if (yourChoice.equals("c1")) { decisionJungle(); }
                     break;
-                case SWAMP_PATH_DAMAGE:
+                case QUICKSAND_SWAMP:
                     if (yourChoice.equals("c1")) { decisionJungle(); }
                     break;
 
                 case DECISION_RIVER_DAMAGE:
                     switch (yourChoice) {
                         case "c1": decisionFinal(); break;
-                        case "c2":
-                            mainTextArea.setText("The tributary leads to a small, stagnant pond. Nothing of interest. You return to the main river.");
-                            setChoices("Continue", "", "", "");
-                            position = GameLocation.TEMP_TRIBUTARY;
-                            break;
-                        case "c3": junglePath(); break;
+                        case "c2": junglePath(); break;
                     }
-                    break;
-                case TEMP_TRIBUTARY:
-                    if (yourChoice.equals("c1")) { decisionRiverDamage(); }
                     break;
 
                 case FIND_PENDANT:
@@ -571,10 +747,16 @@ public class GameScreenPanel extends JPanel {
                             }
                             break;
                         case "c2":
-                            if (player.getHp() > 5) {
-                                endingEscape();
+                            if (player.hasCompass()) {
+                                mainTextArea.setText("You check your compass... it seems to waver, pointing to the left side of the bridge. You cross carefully, avoiding the weak planks on the right.\nYou make it!");
+                                setChoices("Continue", "", "", "");
+                                position = GameLocation.BRIDGE_CROSS_SUCCESS;
+                            } else if (random.nextInt(100) < 50) {
+                                lose("You step on a rotten plank. It snaps, and you fall into the chasm. Game Over.");
                             } else {
-                                lose("You are too weak to maintain your grip on the swaying bridge and fall into the chasm. Game Over.");
+                                mainTextArea.setText("You test every plank, moving slowly. Your heart pounds. After an eternity, you reach the other side!");
+                                setChoices("Continue", "", "", "");
+                                position = GameLocation.BRIDGE_CROSS_SUCCESS;
                             }
                             break;
                         case "c3":
@@ -583,20 +765,39 @@ public class GameScreenPanel extends JPanel {
                     }
                     break;
 
+                case BRIDGE_CROSS_SUCCESS:
+                    if (yourChoice.equals("c1")) { endingEscape(); }
+                    break;
+
+                case WEAPON_CHOICE:
+                    if (yourChoice.equals("c1")) {
+                        player.setWeapon(newWeaponFound);
+                        weaponLabelName.setText(player.getWeapon());
+                    }
+                    resumePath(postWeaponChoicePosition);
+                    break;
+
+                // --- UPDATED ---
                 case ENEMY_ENCOUNTER:
                     if (yourChoice.equals("c1")) { fight(); }
                     else if (yourChoice.equals("c2")) {
-                        fleeResult(random.nextInt(100) < 40);
+                        // Changed 40 to 25 to make fleeing harder
+                        fleeResult(random.nextInt(100) < 25);
                     }
                     break;
 
+                // --- UPDATED ---
                 case FIGHT:
                     switch (yourChoice) {
                         case "c1": playerAttack(); break;
                         case "c2": playerHeal(); break;
-                        case "c3": fleeResult(random.nextInt(100) < 40); break;
+                        case "c3":
+                            // Changed 40 to 25 to make fleeing harder
+                            fleeResult(random.nextInt(100) < 25);
+                            break;
                     }
                     break;
+                // --- END UPDATED ---
 
                 case PLAYER_ATTACK:
                     if (!currentEnemy.isAlive()) {
@@ -634,6 +835,7 @@ public class GameScreenPanel extends JPanel {
         private int maxHp;
         private String weapon;
         private boolean hasPendant;
+        private boolean hasCompass;
 
         public Player(int maxHp, String startWeapon) {
             this.maxHp = maxHp;
@@ -646,6 +848,7 @@ public class GameScreenPanel extends JPanel {
             this.hp = this.maxHp;
             this.weapon = startWeapon;
             this.hasPendant = false;
+            this.hasCompass = false;
         }
 
         public void takeDamage(int amount) {
@@ -668,9 +871,30 @@ public class GameScreenPanel extends JPanel {
         public int getAttackDamage(Random rand) {
             if (weapon.equals("Machete")) {
                 return rand.nextInt(8) + 3;
+            } else if (weapon.equals("Makeshift Spear")) {
+                return rand.nextInt(6) + 2;
+            } else if (weapon.equals("Rusty Pipe")) {
+                return rand.nextInt(5) + 2;
             } else {
                 return rand.nextInt(4) + 1;
             }
+        }
+
+        public String getAttackDamageRange(String weaponName) {
+            if (weaponName.equals("Machete")) {
+                return "3-10";
+            } else if (weaponName.equals("Makeshift Spear")) {
+                return "2-7";
+            } else if (weaponName.equals("Rusty Pipe")) {
+                return "2-6";
+            } else if (weaponName.equals("Pocket Knife")) {
+                return "1-4";
+            }
+            return "0-0";
+        }
+
+        public String getCurrentWeaponDamageRange() {
+            return getAttackDamageRange(this.weapon);
         }
 
         public boolean isAlive() {
@@ -682,6 +906,8 @@ public class GameScreenPanel extends JPanel {
         public void setWeapon(String weapon) { this.weapon = weapon; }
         public boolean hasPendant() { return this.hasPendant; }
         public void setHasPendant(boolean has) { this.hasPendant = has; }
+        public boolean hasCompass() { return this.hasCompass; }
+        public void setHasCompass(boolean has) { this.hasCompass = has; }
     }
 
     private class Enemy {
@@ -705,6 +931,10 @@ public class GameScreenPanel extends JPanel {
                 return rand.nextInt(5) + 2;
             } else if (name.equals("Giant Snake")) {
                 return rand.nextInt(4) + 1;
+            } else if (name.equals("Wild Boar")) {
+                return rand.nextInt(4) + 2;
+            } else if (name.equals("Large Spider")) {
+                return rand.nextInt(3) + 1;
             }
             return 1;
         }
