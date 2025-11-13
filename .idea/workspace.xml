@@ -5,9 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling">
+      <change afterPath="$PROJECT_DIR$/resources/loading_screen_background.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Enemy.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/GameLocation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/GameLogic.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/GameState.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/loading_screen_background.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/GameScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameScreenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ImagePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ImagePanel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +59,7 @@
 }</component>
   <component name="ProjectId" id="34Jlhynzi2JAasBHxtdVB2hqiqD" />
   <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
@@ -128,7 +136,7 @@
       <option name="presentableId" value="Default" />
       <updated>1760939679425</updated>
       <workItem from="1760939681416" duration="59020000" />
-      <workItem from="1763006267285" duration="1303000" />
+      <workItem from="1763006267285" duration="2514000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <option name="closed" value="true" />
@@ -186,7 +194,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763005549675</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling">
+      <option name="closed" value="true" />
+      <created>1763007778341</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1763007778341</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

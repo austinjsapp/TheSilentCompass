@@ -1,0 +1,536 @@
+import java.util.Random;
+
+public class GameLogic {
+    private GameState state;
+    private Random random;
+    private GameUICallback uiCallback;
+
+    public interface GameUICallback {
+        void updateText(String text);
+        void setChoices(String c1, String c2, String c3, String c4);
+        void updatePlayerHP(int hp);
+        void updatePlayerWeapon(String weapon);
+        void setBackground(String imageName);
+        void showHPBonus(String text);
+        void showDamageBonus(String text);
+    }
+
+    public GameLogic(GameState state, Random random, GameUICallback callback) {
+        this.state = state;
+        this.random = random;
+        this.uiCallback = callback;
+    }
+
+    public void startGameNode() {
+        state.setPosition(GameLocation.START);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You wake up beside your shattered canoe on a river bank.\nThe dense jungle stretches before you. Survival is key.");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void decisionStart() {
+        state.setPosition(GameLocation.DECISION_START);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You stand up and check your surroundings. What is your first move?");
+        uiCallback.setChoices("Search wreckage for supplies", "Follow the riverbank", "Head into the jungle", "");
+    }
+
+    public void searchWreckage() {
+        state.setPosition(GameLocation.SEARCH_WRECKAGE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("The wreckage is unstable. You see a glint of metal under a heavy plank and a mostly-dry bag.");
+        uiCallback.setChoices("Try for the metal (Dangerous)", "Check the dry bag", "Leave it alone", "");
+    }
+
+    public void wreckageDanger() {
+        state.setPosition(GameLocation.WRECKAGE_DANGER);
+        uiCallback.setBackground("black_screen");
+
+        int chance = random.nextInt(100);
+
+        if (chance < 30) {
+            lose("You try to move the plank, but the whole pile shifts and crushes you. Game Over.");
+        } else if (chance < 70) {
+            String newWeapon = "Rusty Pipe";
+            if (state.getPlayer().getWeapon().equals(newWeapon)) {
+                uiCallback.updateText("You carefully pull a... Rusty Pipe! But you already have one.");
+                uiCallback.setChoices("Continue", "", "", "");
+            } else {
+                weaponChoice(newWeapon, GameLocation.AFTER_WRECKAGE_DECISION);
+            }
+        } else {
+            uiCallback.updateText("You cut your hand on a sharp edge but find nothing useful.\n(You lost 2 Health)");
+            state.getPlayer().takeDamage(2);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+            uiCallback.setChoices("Continue", "", "", "");
+        }
+    }
+
+    public void searchWreckageBag() {
+        state.setPosition(GameLocation.SEARCH_WRECKAGE_BAG);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You find a soggy First Aid Kit! You use the remaining supplies.\n(Healed 5 Health)");
+        state.getPlayer().heal(random, 5, 0);
+        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void afterWreckageDecision() {
+        state.setPosition(GameLocation.AFTER_WRECKAGE_DECISION);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You step away from the wreckage and survey the area again.");
+        uiCallback.setChoices("Follow the riverbank", "Head into the jungle", "", "");
+    }
+
+    public void riverPath() {
+        state.setPosition(GameLocation.RIVER_PATH);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You decide to follow the river. The water looks murky, but it's a clear path.");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void decisionRiver() {
+        state.setPosition(GameLocation.DECISION_RIVER);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You walk for an hour. The riverbank is muddy and difficult.\nYou hear a loud snorting noise in the bushes nearby.");
+        uiCallback.setChoices("Investigate the noise (Boar)", "Continue along riverbank", "Wander off into the jungle", "Find a place to rest");
+    }
+
+    public void riverPathContinued() {
+        state.setPosition(GameLocation.RIVER_PATH_CONTINUED);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You continue along the main river. The bank is muddy. You see a small tributary breaking off to the left.");
+        uiCallback.setChoices("Follow main river (Snake)", "Explore the tributary", "Go back to the jungle path", "");
+    }
+
+    public void waterfallCave() {
+        state.setPosition(GameLocation.WATERFALL_CAVE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("The tributary leads to a small, beautiful waterfall. You notice a dark opening behind the curtain of water.");
+        uiCallback.setChoices("Investigate the cave", "Return to the river", "", "");
+    }
+
+    public void insideCave() {
+        state.setPosition(GameLocation.INSIDE_CAVE);
+        uiCallback.setBackground("black_screen");
+
+        String newWeapon = "Machete";
+        if (state.getPlayer().getWeapon().equals(newWeapon)) {
+            uiCallback.updateText("You step inside. It's damp and empty. You already have a Machete.");
+            uiCallback.setChoices("Return to the river", "", "", "");
+        } else {
+            weaponChoice(newWeapon, GameLocation.RIVER_PATH_CONTINUED);
+        }
+    }
+
+    public void findKit2() {
+        state.setPosition(GameLocation.FIND_KIT_2);
+        uiCallback.setBackground("black_screen");
+        int healAmount = state.getPlayer().heal(random, 3, 4);
+        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        uiCallback.updateText("You find a sheltered spot under a large tree and rest. You find some edible berries.\n\n(Recovered " + healAmount + " Health)");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void junglePath() {
+        state.setPosition(GameLocation.JUNGLE_PATH);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You push your way into the dense, dark jungle. The sounds of insects and birds are deafening. You spot a long, sturdy-looking branch.");
+        uiCallback.setChoices("Take the branch", "Leave it and continue", "", "");
+    }
+
+    public void findSpear() {
+        String newWeapon = "Makeshift Spear";
+        if (state.getPlayer().getWeapon().equals(newWeapon)) {
+            uiCallback.updateText("You already have a spear.");
+            uiCallback.setChoices("Continue into the jungle", "", "", "");
+            state.setPosition(GameLocation.FIND_SPEAR);
+        } else {
+            weaponChoice(newWeapon, GameLocation.DECISION_JUNGLE);
+        }
+    }
+
+    public void decisionJungle() {
+        state.setPosition(GameLocation.DECISION_JUNGLE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You find a fork in the faint animal trail you've been following.");
+        uiCallback.setChoices("Go left, towards a rocky hill (Jaguar)", "Go right, towards a swamp (Quicksand)", "Follow a strange noise (Giant Tree)", "Find a place to rest");
+    }
+
+    public void weaponChoice(String newWeaponName, GameLocation nextPosition) {
+        state.setPosition(GameLocation.WEAPON_CHOICE);
+        state.setNewWeaponFound(newWeaponName);
+        state.setPostWeaponChoicePosition(nextPosition);
+
+        String currentWeaponName = state.getPlayer().getWeapon();
+        String currentDamage = state.getPlayer().getAttackDamageRange();
+        String newDamage = state.getPlayer().getAttackDamageRange(newWeaponName);
+
+        uiCallback.updateText("You found a " + newWeaponName + "!");
+        uiCallback.setChoices("Switch to " + newWeaponName + " (Damage: " + newDamage + ")",
+                "Keep " + currentWeaponName + " (Damage: " + currentDamage + ")",
+                "", "");
+    }
+
+    public void giantTree() {
+        state.setPosition(GameLocation.GIANT_TREE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You follow the skittering noise to a massive, ancient tree. A Large Spider descends from a thick web!");
+        uiCallback.setChoices("Fight the spider", "Run back to the fork", "", "");
+    }
+
+    public void afterSpiderFight() {
+        state.setPosition(GameLocation.AFTER_SPIDER_FIGHT);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)");
+        state.getPlayer().setHasCompass(true);
+        uiCallback.setChoices("Return to the jungle fork", "", "", "");
+    }
+
+    public void findKit3() {
+        state.setPosition(GameLocation.FIND_KIT_3);
+        uiCallback.setBackground("black_screen");
+        int healAmount = state.getPlayer().heal(random, 2, 3);
+        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        uiCallback.updateText("You sit down to rest. You find a 'First Aid Leaf' and apply it to your scratches.\n\n(Recovered " + healAmount + " Health)");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void quicksandSwamp() {
+        state.setPosition(GameLocation.QUICKSAND_SWAMP);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You head towards the swamp. The ground suddenly gives way! It's quicksand!");
+
+        if (random.nextInt(100) < 50) {
+            lose("You struggle, but the thick mud pulls you under. Game Over.");
+        } else {
+            int damage = random.nextInt(4) + 2;
+            state.getPlayer().takeDamage(damage);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+
+            String currentText = "You head towards the swamp. The ground suddenly gives way! It's quicksand!\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost 2 Health)";
+            uiCallback.updateText(currentText);
+
+            if (!state.getPlayer().isAlive()) {
+                lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
+            } else {
+                uiCallback.setChoices("Return to the fork", "", "", "");
+            }
+        }
+    }
+
+    // Enemy encounters
+    public void boarEncounter() {
+        state.setPosition(GameLocation.ENEMY_ENCOUNTER);
+        uiCallback.setBackground("black_screen");
+
+        state.setCurrentEnemy(new Enemy("Wild Boar", 16 + random.nextInt(5)));
+        state.setPostCombatPosition(GameLocation.RIVER_PATH_CONTINUED);
+
+        uiCallback.updateText("You push aside the bushes and a " + state.getCurrentEnemy().getName() + " charges at you!");
+        uiCallback.setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void riverEncounter() {
+        state.setPosition(GameLocation.ENEMY_ENCOUNTER);
+        uiCallback.setBackground("black_screen");
+
+        state.setCurrentEnemy(new Enemy("Giant Snake", 12 + random.nextInt(5)));
+        state.setPostCombatPosition(GameLocation.DECISION_RIVER_DAMAGE);
+
+        uiCallback.updateText("A " + state.getCurrentEnemy().getName() + " slithers out from the mud! It looks aggressive.");
+        uiCallback.setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void jungleEncounter() {
+        state.setPosition(GameLocation.ENEMY_ENCOUNTER);
+        uiCallback.setBackground("black_screen");
+
+        state.setCurrentEnemy(new Enemy("Jaguar", 20 + random.nextInt(6)));
+        state.setPostCombatPosition(GameLocation.FIND_PENDANT);
+
+        uiCallback.updateText("You round a boulder and startle a " + state.getCurrentEnemy().getName() + "! It prepares to pounce!");
+        uiCallback.setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void spiderEncounter() {
+        state.setPosition(GameLocation.ENEMY_ENCOUNTER);
+        uiCallback.setBackground("black_screen");
+
+        state.setCurrentEnemy(new Enemy("Large Spider", 8 + random.nextInt(3)));
+        state.setPostCombatPosition(GameLocation.AFTER_SPIDER_FIGHT);
+
+        uiCallback.updateText("You ready your " + state.getPlayer().getWeapon() + " against the " + state.getCurrentEnemy().getName() + "!");
+        uiCallback.setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void decisionRiverDamage() {
+        state.setPosition(GameLocation.DECISION_RIVER_DAMAGE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("After the fight with the snake, you are tired. The path ahead looks long.");
+        uiCallback.setChoices("Continue into the murky delta", "Go back to the jungle path", "", "");
+    }
+
+    public void murkyDelta() {
+        state.setPosition(GameLocation.MURKY_DELTA);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("The river splits into a maze of small, murky channels. You see a glint on a small island, but also hear a strange clicking sound from the mangroves.");
+        uiCallback.setChoices("Try to reach the island (Risky)", "Follow the clicking sound (Crab)", "Try to find the main channel", "");
+    }
+
+    public void deltaIsland() {
+        state.setPosition(GameLocation.DELTA_ISLAND);
+        uiCallback.setBackground("black_screen");
+        int chance = random.nextInt(100);
+
+        if (chance < 40 && !state.getPlayer().hasWhetstone()) {
+            uiCallback.updateText("You find a smooth Whetstone on the shore!\n\n(Your weapons will now do +1 minimum damage!)");
+            state.getPlayer().setHasWhetstone(true);
+            uiCallback.showDamageBonus("(+1 Damage)");
+            uiCallback.setChoices("Return to the delta", "", "", "");
+        } else if (chance < 70 && !state.getPlayer().hasToughHide()) {
+            uiCallback.updateText("You find a thick, leathery hide on the island. It looks durable.\n\n(Your Max HP has permanently increased by 5!)");
+            state.getPlayer().setHasToughHide(true);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+            uiCallback.showHPBonus("(+5 HP)");
+            uiCallback.setChoices("Return to the delta", "", "", "");
+        } else {
+            uiCallback.updateText("You step onto the island and a Giant Crab bursts from the sand!");
+            uiCallback.setChoices("Fight!", "", "", "");
+        }
+    }
+
+    public void findMainChannel() {
+        state.setPosition(GameLocation.FIND_MAIN_CHANNEL);
+        uiCallback.setBackground("black_screen");
+        if (random.nextInt(100) < 50) {
+            uiCallback.updateText("You navigate the maze and find the main river channel again. It leads to a high ridge.");
+            uiCallback.setChoices("Continue to the ridge", "", "", "");
+        } else {
+            uiCallback.updateText("You get lost in the mangroves and cut yourself on sharp shells.\n(You lost 2 Health)");
+            state.getPlayer().takeDamage(2);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+            if (!state.getPlayer().isAlive()) {
+                lose("You succumb to your injuries in the delta. Game Over.");
+            } else {
+                uiCallback.setChoices("Try again", "", "", "");
+            }
+        }
+    }
+
+    public void giantCrabEncounter() {
+        state.setPosition(GameLocation.ENEMY_ENCOUNTER);
+        uiCallback.setBackground("black_screen");
+        state.setCurrentEnemy(new Enemy("Giant Crab", 15 + random.nextInt(4)));
+        state.setPostCombatPosition(GameLocation.MURKY_DELTA);
+        uiCallback.updateText("A " + state.getCurrentEnemy().getName() + " emerges, snapping its huge claws!");
+        uiCallback.setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void findPendant() {
+        state.setPosition(GameLocation.FIND_PENDANT);
+        uiCallback.setBackground("black_screen");
+        String text = "With the " + state.getCurrentEnemy().getName() + " defeated, you continue up the rocky hill. You find a small, abandoned camp.\n";
+
+        if (!state.getPlayer().hasPendant()) {
+            text += "Inside a rotted bag, you find an ornate Pendant!";
+            state.getPlayer().setHasPendant(true);
+        } else {
+            text += "You already found the pendant. There is nothing else here.";
+        }
+
+        uiCallback.updateText(text);
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void afterPendant() {
+        state.setPosition(GameLocation.AFTER_PENDANT);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You pocket the pendant. It feels strangely important.\nThe path from the camp leads to crumbling stone ruins covered in vines.");
+        uiCallback.setChoices("Explore the ruins", "", "", "");
+    }
+
+    public void ancientRuins() {
+        state.setPosition(GameLocation.ANCIENT_RUINS);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You stand in a vine-choked courtyard. There is a dark stairway leading down, a large stone building, and a path continuing up the hill.");
+        uiCallback.setChoices("Explore the dark stairway (Stalker)", "Search the stone building", "Follow the path up the hill", "");
+    }
+
+    public void ruinsCrypt() {
+        state.setPosition(GameLocation.RUINS_CRYPT);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You descend into the darkness. A pair of glowing eyes snaps open in the shadows... A Jungle Stalker attacks!");
+        uiCallback.setChoices("Fight!", "", "", "");
+    }
+
+    public void stalkerEncounter() {
+        state.setPosition(GameLocation.ENEMY_ENCOUNTER);
+        uiCallback.setBackground("black_screen");
+        state.setCurrentEnemy(new Enemy("Jungle Stalker", 25 + random.nextInt(6)));
+        state.setPostCombatPosition(GameLocation.AFTER_STALKER_FIGHT);
+        uiCallback.updateText("The " + state.getCurrentEnemy().getName() + " lunges from the shadows!");
+        uiCallback.setChoices("Fight", "Try to flee", "", "");
+    }
+
+    public void afterStalkerFight() {
+        state.setPosition(GameLocation.AFTER_STALKER_FIGHT);
+        uiCallback.setBackground("black_screen");
+        String text = "The stalker dissolves into shadows. It dropped a sharp Obsidian Dagger!";
+
+        String newWeapon = "Obsidian Dagger";
+        if (state.getPlayer().getWeapon().equals(newWeapon)) {
+            text += "\n...But you already have one.";
+            uiCallback.updateText(text);
+            uiCallback.setChoices("Return to courtyard", "", "", "");
+        } else {
+            weaponChoice(newWeapon, GameLocation.ANCIENT_RUINS);
+        }
+    }
+
+    public void ruinsBuilding() {
+        state.setPosition(GameLocation.RUINS_BUILDING);
+        uiCallback.setBackground("black_screen");
+
+        if (state.getPlayer().getWeapon().equals("Obsidian Dagger")) {
+            uiCallback.updateText("You search the crumbling building and find a pristine First Aid Kit!\n\n(Healed 10 Health)");
+            state.getPlayer().heal(random, 10, 0);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        } else if (!state.getPlayer().hasWhetstone()) {
+            uiCallback.updateText("You search the building and find a strange, smooth Whetstone!\n\n(Your weapons will now do +1 minimum damage!)");
+            state.getPlayer().setHasWhetstone(true);
+            uiCallback.showDamageBonus("(+1 Damage)");
+        } else if (!state.getPlayer().hasToughHide()) {
+            uiCallback.updateText("You search the building and find a tough, leathery hide.\n\n(Your Max HP has permanently increased by 5!)");
+            state.getPlayer().setHasToughHide(true);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+            uiCallback.showHPBonus("(+5 HP)");
+        } else {
+            uiCallback.updateText("The building is empty, save for dust and echoes.");
+        }
+        uiCallback.setChoices("Return to courtyard", "", "", "");
+    }
+
+    public void decisionFinal() {
+        state.setPosition(GameLocation.DECISION_FINAL);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You've been walking for what feels like days. You are weak and tired.\nYou reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a deep chasm.");
+        uiCallback.setChoices("Head towards the smoke", "Try to cross the rope bridge (50% Fail)", "Give up and stay here", "");
+    }
+
+    // Combat methods
+    public void fight() {
+        state.setPosition(GameLocation.FIGHT);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText(state.getCurrentEnemy().getName() + " Health: " + state.getCurrentEnemy().getHp() + "\n\nWhat do you do?");
+        uiCallback.setChoices("Attack with " + state.getPlayer().getWeapon(), "Heal (costs a turn)", "Attempt to Flee", "");
+    }
+
+    public void playerAttack() {
+        state.setPosition(GameLocation.PLAYER_ATTACK);
+        uiCallback.setBackground("black_screen");
+
+        int playerDamage = state.getPlayer().getAttackDamage(random);
+        state.getCurrentEnemy().takeDamage(playerDamage);
+
+        uiCallback.updateText("You attack the " + state.getCurrentEnemy().getName() + " for " + playerDamage + " damage!");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void playerHeal() {
+        state.setPosition(GameLocation.PLAYER_HEAL);
+        uiCallback.setBackground("black_screen");
+
+        int healAmount = state.getPlayer().heal(random, 3, 5);
+        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        uiCallback.updateText("You tend to your wounds, trying to recover.\n(Healed " + healAmount + " Health)");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void enemyAttack() {
+        state.setPosition(GameLocation.ENEMY_ATTACK);
+        uiCallback.setBackground("black_screen");
+
+        int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
+        state.getPlayer().takeDamage(enemyDamage);
+        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+
+        uiCallback.updateText("The " + state.getCurrentEnemy().getName() + " attacks you for " + enemyDamage + " damage!");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void winFight() {
+        state.setPosition(GameLocation.WIN_FIGHT);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You defeated the " + state.getCurrentEnemy().getName() + "!");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void fleeResult(boolean success) {
+        state.setPosition(GameLocation.FLEE_RESULT);
+        uiCallback.setBackground("black_screen");
+        if (success) {
+            uiCallback.updateText("You managed to escape!");
+            uiCallback.setChoices("Continue", "", "", "");
+        } else {
+            int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
+            state.getPlayer().takeDamage(enemyDamage);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+
+            uiCallback.updateText("You couldn't get away! The " + state.getCurrentEnemy().getName() + " attacks!\n(Received " + enemyDamage + " damage)");
+            uiCallback.setChoices("Continue", "", "", "");
+            state.setPosition(GameLocation.ENEMY_ATTACK_DISPLAY);
+        }
+    }
+
+    // Endings
+    public void lose(String message) {
+        state.setPosition(GameLocation.LOSE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText(message + "\n\nGAME OVER");
+        uiCallback.setChoices("Restart", "Main Menu", "", "");
+    }
+
+    public void endingEscape() {
+        state.setPosition(GameLocation.ENDING_ESCAPE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("On the other side, you find a clear trail that leads you out of the jungle to a small village.\n\n(Escape Ending)");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void endingRescue() {
+        state.setPosition(GameLocation.ENDING_RESCUE);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You head towards the smoke. A search party finds you! They were looking for you.\nYour Pendant seems to glow as they approach.\n\n(Rescue Ending)");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void endingLost() {
+        state.setPosition(GameLocation.ENDING_LOST);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("You collapse, too weak to go on. The jungle... it wins.\nYou are never seen again.\n\n(Lost Forever Ending)");
+        uiCallback.setChoices("Continue", "", "", "");
+    }
+
+    public void thankYou() {
+        state.setPosition(GameLocation.THANK_YOU);
+        uiCallback.setBackground("black_screen");
+        uiCallback.updateText("Thank you for playing!");
+        uiCallback.setChoices("Play Again?", "Main Menu", "", "");
+    }
+
+    public void resumePath(GameLocation path) {
+        switch (path) {
+            case DECISION_RIVER_DAMAGE: decisionRiverDamage(); break;
+            case FIND_PENDANT: findPendant(); break;
+            case RIVER_PATH_CONTINUED: riverPathContinued(); break;
+            case AFTER_SPIDER_FIGHT: afterSpiderFight(); break;
+            case AFTER_WRECKAGE_DECISION: afterWreckageDecision(); break;
+            case DECISION_JUNGLE: decisionJungle(); break;
+            case MURKY_DELTA: murkyDelta(); break;
+            case ANCIENT_RUINS: ancientRuins(); break;
+            case AFTER_STALKER_FIGHT: afterStalkerFight(); break;
+            default: decisionStart(); break;
+        }
+    }
+}

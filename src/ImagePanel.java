@@ -16,18 +16,20 @@ public class ImagePanel extends JPanel {
      */
     public void setImage(String imagePath) {
         if (imagePath != null) {
-            this.backgroundImage = new ImageIcon(imagePath).getImage();
+            ImageIcon icon = new ImageIcon(imagePath);
+            backgroundImage = icon.getImage();
         } else {
-            this.backgroundImage = null; // No image
+            backgroundImage = null;
         }
-        repaint(); // Tell the panel to redraw itself
+        repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, this.getWidth(), this.getHeight(), this);
+            // Scale and draw the image to fill the panel
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 }
