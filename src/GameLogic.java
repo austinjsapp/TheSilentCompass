@@ -48,8 +48,17 @@ public class GameLogic {
 
         int chance = random.nextInt(100);
 
-        if (chance < 30) {
-            lose("You try to move the plank, but the whole pile shifts and crushes you. Game Over.");
+        if (chance < 40) {
+            int damage = random.nextInt(3) + 8;
+            state.getPlayer().takeDamage(damage);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+
+            if (!state.getPlayer().isAlive()) {
+                lose("The plank shifts and crushes you. Game Over.");
+            } else {
+                uiCallback.updateText("The plank shifts dangerously! You barely escape but get badly hurt.\n(You lost " + damage + " Health)");
+                uiCallback.setChoices("Continue", "", "", "");
+            }
         } else if (chance < 70) {
             String newWeapon = "Rusty Pipe";
             if (state.getPlayer().getWeapon().equals(newWeapon)) {
@@ -184,6 +193,8 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)");
         state.getPlayer().setHasCompass(true);
+        // NEW: Finding compass gives inspiration
+        state.getPlayer().applyInspired(3);
         uiCallback.setChoices("Return to the jungle fork", "", "", "");
     }
 
@@ -199,23 +210,18 @@ public class GameLogic {
     public void quicksandSwamp() {
         state.setPosition(GameLocation.QUICKSAND_SWAMP);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("You head towards the swamp. The ground suddenly gives way! It's quicksand!");
 
-        if (random.nextInt(100) < 50) {
-            lose("You struggle, but the thick mud pulls you under. Game Over.");
+        int damage = random.nextInt(3) + 6;
+        state.getPlayer().takeDamage(damage);
+        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+
+        String currentText = "You head towards the swamp. The ground suddenly gives way! It's quicksand!\nYou frantically grab a vine and pull yourself out, exhausted and injured.\n(You lost " + damage + " Health)";
+        uiCallback.updateText(currentText);
+
+        if (!state.getPlayer().isAlive()) {
+            lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
         } else {
-            int damage = random.nextInt(4) + 2;
-            state.getPlayer().takeDamage(damage);
-            uiCallback.updatePlayerHP(state.getPlayer().getHp());
-
-            String currentText = "You head towards the swamp. The ground suddenly gives way! It's quicksand!\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost 2 Health)";
-            uiCallback.updateText(currentText);
-
-            if (!state.getPlayer().isAlive()) {
-                lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
-            } else {
-                uiCallback.setChoices("Return to the fork", "", "", "");
-            }
+            uiCallback.setChoices("Return to the fork", "", "", "");
         }
     }
 
@@ -335,6 +341,8 @@ public class GameLogic {
         if (!state.getPlayer().hasPendant()) {
             text += "Inside a rotted bag, you find an ornate Pendant!";
             state.getPlayer().setHasPendant(true);
+            // NEW: Finding pendant gives inspiration
+            state.getPlayer().applyInspired(3);
         } else {
             text += "You already found the pendant. There is nothing else here.";
         }
@@ -414,26 +422,76 @@ public class GameLogic {
     public void decisionFinal() {
         state.setPosition(GameLocation.DECISION_FINAL);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("You've been walking for what feels like days. You are weak and tired.\nYou reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a deep chasm.");
+        uiCallback.updateText("You've been walking for what feels like days. You are weak and tired.\nYou reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a chasm.");
         uiCallback.setChoices("Head towards the smoke", "Try to cross the rope bridge (50% Fail)", "Give up and stay here", "");
     }
 
-    // Combat methods
+    // NEW: Combat methods with combo and status effects
     public void fight() {
         state.setPosition(GameLocation.FIGHT);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText(state.getCurrentEnemy().getName() + " Health: " + state.getCurrentEnemy().getHp() + "\n\nWhat do you do?");
-        uiCallback.setChoices("Attack with " + state.getPlayer().getWeapon(), "Heal (costs a turn)", "Attempt to Flee", "");
+
+        StringBuilder fightText = new StringBuilder();
+        fightText.append(state.getCurrentEnemy().getName()).append(" Health: ").append(state.getCurrentEnemy().getHp());
+
+        // Show status effects if any
+        if (state.getPlayer().hasActiveStatusEffects()) {
+            fightText.append("\n\nStatus: ").append(state.getPlayer().getStatusEffectSummary());
+        }
+
+        // Show combo if active
+        if (state.getPlayer().getComboCount() > 0) {
+            fightText.append("\nCombo: x").append(state.getPlayer().getComboCount());
+        }
+
+        fightText.append("\n\nWhat do you do?");
+
+        uiCallback.updateText(fightText.toString());
+
+        // Check if stunned
+        if (state.getPlayer().isStunned()) {
+            uiCallback.setChoices("(Stunned - Cannot Attack)", "Heal (costs a turn)", "Attempt to Flee", "");
+        } else {
+            uiCallback.setChoices("Attack with " + state.getPlayer().getWeapon(), "Heal (costs a turn)", "Attempt to Flee", "");
+        }
     }
 
     public void playerAttack() {
         state.setPosition(GameLocation.PLAYER_ATTACK);
         uiCallback.setBackground("black_screen");
 
-        int playerDamage = state.getPlayer().getAttackDamage(random);
-        state.getCurrentEnemy().takeDamage(playerDamage);
+        // Check if stunned
+        if (state.getPlayer().isStunned()) {
+            state.getPlayer().clearStun();
+            uiCallback.updateText("You shake off the stun and prepare to fight!");
+            uiCallback.setChoices("Continue", "", "", "");
+            return;
+        }
 
-        uiCallback.updateText("You attack the " + state.getCurrentEnemy().getName() + " for " + playerDamage + " damage!");
+        int baseDamage = state.getPlayer().getAttackDamage(random);
+        boolean isCritical = state.getPlayer().isCriticalHit(random);
+
+        int finalDamage = isCritical ? (int)(baseDamage * 1.5) : baseDamage;
+        state.getCurrentEnemy().takeDamage(finalDamage);
+
+        // Increment combo on successful hit
+        state.getPlayer().incrementCombo();
+
+        StringBuilder attackText = new StringBuilder();
+        attackText.append("You attack the ").append(state.getCurrentEnemy().getName());
+        attackText.append(" for ").append(finalDamage).append(" damage!");
+
+        if (isCritical) {
+            attackText.append("\n\nCRITICAL HIT!");
+        }
+
+        // Show combo message
+        String comboMsg = state.getPlayer().getComboMessage();
+        if (!comboMsg.isEmpty()) {
+            attackText.append("\n").append(comboMsg);
+        }
+
+        uiCallback.updateText(attackText.toString());
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -441,9 +499,9 @@ public class GameLogic {
         state.setPosition(GameLocation.PLAYER_HEAL);
         uiCallback.setBackground("black_screen");
 
-        int healAmount = state.getPlayer().heal(random, 3, 5);
+        int healAmount = state.getPlayer().heal(random, 6, 6);
         uiCallback.updatePlayerHP(state.getPlayer().getHp());
-        uiCallback.updateText("You tend to your wounds, trying to recover.\n(Healed " + healAmount + " Health)");
+        uiCallback.updateText("You tend to your wounds, bandaging and resting briefly.\n(Healed " + healAmount + " Health)");
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -451,35 +509,75 @@ public class GameLogic {
         state.setPosition(GameLocation.ENEMY_ATTACK);
         uiCallback.setBackground("black_screen");
 
-        int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
-        state.getPlayer().takeDamage(enemyDamage);
-        uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        StringBuilder attackText = new StringBuilder();
 
-        uiCallback.updateText("The " + state.getCurrentEnemy().getName() + " attacks you for " + enemyDamage + " damage!");
+        if (state.getPlayer().canDodge(random)) {
+            attackText.append("The ").append(state.getCurrentEnemy().getName());
+            attackText.append(" attacks, but you dodge out of the way!\n\n(Damage avoided!)");
+        } else {
+            int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
+            state.getPlayer().takeDamage(enemyDamage);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+
+            attackText.append("The ").append(state.getCurrentEnemy().getName());
+            attackText.append(" attacks you for ").append(enemyDamage).append(" damage!");
+
+            // NEW: Try to apply status effect
+            String statusEffect = state.getCurrentEnemy().tryApplyStatusEffect(random, state.getPlayer());
+            attackText.append(statusEffect);
+        }
+
+        // NEW: Process status effects at end of turn
+        String statusDamage = state.getPlayer().processStatusEffects();
+        if (!statusDamage.isEmpty()) {
+            attackText.append("\n\n").append(statusDamage);
+            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+        }
+
+        uiCallback.updateText(attackText.toString());
         uiCallback.setChoices("Continue", "", "", "");
     }
 
     public void winFight() {
         state.setPosition(GameLocation.WIN_FIGHT);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("You defeated the " + state.getCurrentEnemy().getName() + "!");
+
+        StringBuilder winText = new StringBuilder();
+        winText.append("You defeated the ").append(state.getCurrentEnemy().getName()).append("!");
+
+        // Show final combo
+        if (state.getPlayer().getComboCount() >= 3) {
+            winText.append("\n\nYou fought with exceptional skill!");
+        }
+
+        uiCallback.updateText(winText.toString());
         uiCallback.setChoices("Continue", "", "", "");
     }
 
     public void fleeResult(boolean success) {
         state.setPosition(GameLocation.FLEE_RESULT);
         uiCallback.setBackground("black_screen");
+
+        // Fleeing resets combo
+        state.getPlayer().resetCombo();
+
         if (success) {
             uiCallback.updateText("You managed to escape!");
             uiCallback.setChoices("Continue", "", "", "");
         } else {
-            int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
-            state.getPlayer().takeDamage(enemyDamage);
-            uiCallback.updatePlayerHP(state.getPlayer().getHp());
+            if (state.getPlayer().canDodge(random)) {
+                uiCallback.updateText("You couldn't get away, but you dodge the " + state.getCurrentEnemy().getName() + "'s attack as you retreat!");
+                uiCallback.setChoices("Continue", "", "", "");
+                state.setPosition(GameLocation.ENEMY_ATTACK_DISPLAY);
+            } else {
+                int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
+                state.getPlayer().takeDamage(enemyDamage);
+                uiCallback.updatePlayerHP(state.getPlayer().getHp());
 
-            uiCallback.updateText("You couldn't get away! The " + state.getCurrentEnemy().getName() + " attacks!\n(Received " + enemyDamage + " damage)");
-            uiCallback.setChoices("Continue", "", "", "");
-            state.setPosition(GameLocation.ENEMY_ATTACK_DISPLAY);
+                uiCallback.updateText("You couldn't get away! The " + state.getCurrentEnemy().getName() + " attacks!\n(Received " + enemyDamage + " damage)");
+                uiCallback.setChoices("Continue", "", "", "");
+                state.setPosition(GameLocation.ENEMY_ATTACK_DISPLAY);
+            }
         }
     }
 

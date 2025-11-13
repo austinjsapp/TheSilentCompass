@@ -502,18 +502,26 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
                     gameLogic.resumePath(gameState.getPostWeaponChoicePosition());
                     break;
 
+                // IMPROVED: Enemy encounters with flee bonus
                 case ENEMY_ENCOUNTER:
                     if (choice.equals("c1")) gameLogic.fight();
                     else if (choice.equals("c2")) {
-                        gameLogic.fleeResult(random.nextInt(100) < 25);
+                        // IMPROVED: 30% base flee chance + enemy-specific bonus
+                        int fleeChance = 30 + gameState.getCurrentEnemy().getFleeSuccessBonus();
+                        gameLogic.fleeResult(random.nextInt(100) < fleeChance);
                     }
                     break;
 
+                // IMPROVED: Combat with flee bonus
                 case FIGHT:
                     switch (choice) {
                         case "c1": gameLogic.playerAttack(); break;
                         case "c2": gameLogic.playerHeal(); break;
-                        case "c3": gameLogic.fleeResult(random.nextInt(100) < 25); break;
+                        case "c3":
+                            // IMPROVED: 30% base flee chance + enemy-specific bonus
+                            int fleeChance = 30 + gameState.getCurrentEnemy().getFleeSuccessBonus();
+                            gameLogic.fleeResult(random.nextInt(100) < fleeChance);
+                            break;
                     }
                     break;
 
@@ -547,6 +555,7 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
             }
         }
 
+        // IMPROVED: Better bridge crossing odds
         private void handleFinalDecision(String choice) {
             switch (choice) {
                 case "c1":
@@ -561,12 +570,12 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
                         updateText("You check your compass... it seems to waver, pointing to the left side of the bridge. You cross carefully, avoiding the weak planks on the right.");
                         setChoices("Continue", "", "", "");
                         gameState.setPosition(GameLocation.BRIDGE_CROSS_SUCCESS);
-                    } else if (random.nextInt(100) < 50) {
-                        gameLogic.lose("You step on a rotten plank. It snaps, and you fall into the chasm. Game Over.");
-                    } else {
+                    } else if (random.nextInt(100) < 60) { // IMPROVED: 60% success instead of 50%
                         updateText("You test every plank, moving slowly. Your heart pounds. After an eternity, you reach the other side!");
                         setChoices("Continue", "", "", "");
                         gameState.setPosition(GameLocation.BRIDGE_CROSS_SUCCESS);
+                    } else {
+                        gameLogic.lose("You step on a rotten plank. It snaps, and you fall into the chasm. Game Over.");
                     }
                     break;
                 case "c3":

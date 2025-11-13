@@ -10,6 +10,15 @@ public class Player {
     private boolean hasWhetstone;
     private boolean hasToughHide;
 
+    // NEW: Combo system
+    private int comboCount;
+
+    // NEW: Status effects
+    private int poisonTurns;
+    private int bleedingTurns;
+    private boolean isStunned;
+    private int inspiredTurns;
+
     public Player(int maxHp, String startWeapon) {
         this.baseMaxHp = maxHp;
         this.maxHp = baseMaxHp;
@@ -26,6 +35,13 @@ public class Player {
         this.hasCompass = false;
         this.hasWhetstone = false;
         this.hasToughHide = false;
+
+        // Reset combo and status effects
+        this.comboCount = 0;
+        this.poisonTurns = 0;
+        this.bleedingTurns = 0;
+        this.isStunned = false;
+        this.inspiredTurns = 0;
     }
 
     public void takeDamage(int amount) {
@@ -33,32 +49,161 @@ public class Player {
         if (this.hp < 0) {
             this.hp = 0;
         }
+        // Taking damage breaks combo
+        resetCombo();
     }
 
     public int heal(Random rand, int base, int bonus) {
-        int healAmount = base + rand.nextInt(bonus + 1);
+        int healAmount = Math.max(6, base + rand.nextInt(bonus + 1));
         int oldHp = this.hp;
         this.hp += healAmount;
         if (this.hp > this.maxHp) {
             this.hp = this.maxHp;
         }
+        // Healing breaks combo
+        resetCombo();
         return this.hp - oldHp;
     }
 
     public int getAttackDamage(Random rand) {
         int minDamageBonus = hasWhetstone ? 1 : 0;
+        int baseDamage;
 
         if (weapon.equals("Machete")) {
-            return rand.nextInt(8) + 3 + minDamageBonus;
+            baseDamage = rand.nextInt(8) + 3 + minDamageBonus;
         } else if (weapon.equals("Obsidian Dagger")) {
-            return rand.nextInt(5) + 4 + minDamageBonus;
+            baseDamage = rand.nextInt(5) + 4 + minDamageBonus;
         } else if (weapon.equals("Makeshift Spear")) {
-            return rand.nextInt(6) + 2 + minDamageBonus;
+            baseDamage = rand.nextInt(6) + 2 + minDamageBonus;
         } else if (weapon.equals("Rusty Pipe")) {
-            return rand.nextInt(5) + 2 + minDamageBonus;
+            baseDamage = rand.nextInt(5) + 2 + minDamageBonus;
         } else { // Pocket Knife
-            return rand.nextInt(4) + 1 + minDamageBonus;
+            baseDamage = rand.nextInt(4) + 1 + minDamageBonus;
         }
+
+        // NEW: Add combo bonus
+        int comboBonus = getComboBonus();
+
+        // NEW: Add inspired bonus
+        int inspiredBonus = (inspiredTurns > 0) ? 2 : 0;
+
+        return baseDamage + comboBonus + inspiredBonus;
+    }
+
+    public boolean isCriticalHit(Random rand) {
+        return rand.nextInt(100) < 15;
+    }
+
+    public boolean canDodge(Random rand) {
+        return rand.nextInt(100) < 10;
+    }
+
+    // NEW: Combo system methods
+    public void incrementCombo() {
+        comboCount++;
+    }
+
+    public void resetCombo() {
+        comboCount = 0;
+    }
+
+    public int getComboCount() {
+        return comboCount;
+    }
+
+    public int getComboBonus() {
+        if (comboCount >= 4) return 3;
+        if (comboCount >= 3) return 2;
+        if (comboCount >= 2) return 1;
+        return 0;
+    }
+
+    public String getComboMessage() {
+        if (comboCount >= 4) return "UNSTOPPABLE!";
+        if (comboCount == 3) return "ON FIRE!";
+        if (comboCount == 2) return "Combo x2!";
+        return "";
+    }
+
+    // NEW: Status effect methods
+    public void applyPoison(int turns) {
+        this.poisonTurns = Math.max(this.poisonTurns, turns);
+    }
+
+    public void applyBleeding(int turns) {
+        this.bleedingTurns = Math.max(this.bleedingTurns, turns);
+    }
+
+    public void applyStun() {
+        this.isStunned = true;
+    }
+
+    public void applyInspired(int turns) {
+        this.inspiredTurns = Math.max(this.inspiredTurns, turns);
+    }
+
+    public String processStatusEffects() {
+        StringBuilder message = new StringBuilder();
+        int totalDamage = 0;
+
+        // Process poison
+        if (poisonTurns > 0) {
+            totalDamage += 1;
+            poisonTurns--;
+            message.append("You feel sick from poison (-1 HP). ");
+            if (poisonTurns > 0) {
+                message.append("[").append(poisonTurns).append(" turns left] ");
+            }
+        }
+
+        // Process bleeding
+        if (bleedingTurns > 0) {
+            totalDamage += 2;
+            bleedingTurns--;
+            message.append("You're bleeding (-2 HP). ");
+            if (bleedingTurns > 0) {
+                message.append("[").append(bleedingTurns).append(" turns left] ");
+            }
+        }
+
+        // Process inspired
+        if (inspiredTurns > 0) {
+            inspiredTurns--;
+            if (message.length() > 0) message.append("\n");
+            message.append("You feel inspired! (+2 damage) ");
+            if (inspiredTurns > 0) {
+                message.append("[").append(inspiredTurns).append(" turns left]");
+            }
+        }
+
+        // Apply damage
+        if (totalDamage > 0) {
+            this.hp -= totalDamage;
+            if (this.hp < 0) this.hp = 0;
+        }
+
+        return message.toString().trim();
+    }
+
+    public boolean isStunned() {
+        return isStunned;
+    }
+
+    public void clearStun() {
+        isStunned = false;
+    }
+
+    public boolean hasActiveStatusEffects() {
+        return poisonTurns > 0 || bleedingTurns > 0 || isStunned || inspiredTurns > 0;
+    }
+
+    public String getStatusEffectSummary() {
+        StringBuilder summary = new StringBuilder();
+        if (poisonTurns > 0) summary.append("[Poisoned] ");
+        if (bleedingTurns > 0) summary.append("[Bleeding] ");
+        if (isStunned) summary.append("[Stunned] ");
+        if (inspiredTurns > 0) summary.append("[Inspired] ");
+        return summary.toString().trim();
     }
 
     public String getAttackDamageRange(String weaponName) {
