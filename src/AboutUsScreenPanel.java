@@ -1,95 +1,49 @@
 import javax.swing.JPanel;
 import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import javax.swing.JTextArea;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
-// This class is a JPanel that represents ONLY the "About Us" screen.
 public class AboutUsScreenPanel extends JPanel {
 
-    private JTextArea descriptionTextArea;
+    public AboutUsScreenPanel(Game game, int screenWidth, int screenHeight) {
+        setLayout(null);
 
-    public AboutUsScreenPanel(Game game) {
+        // Calculate scale factors
+        double scaleX = screenWidth / 800.0;
+        double scaleY = screenHeight / 600.0;
+        double scale = Math.min(scaleX, scaleY);
 
-        this.setLayout(null);
+        ImagePanel backgroundPanel = new ImagePanel(UIHelper.findImagePath("about_us"));
+        backgroundPanel.setBounds(0, 0, screenWidth, screenHeight);
 
-        ImagePanel backgroundPanel = new ImagePanel(UIHelper.findImagePath("about_us_background"));
-        backgroundPanel.setBounds(0, 0, 800, 600);
+        ShadowLabel titleLabel = new ShadowLabel("ABOUT US");
+        titleLabel.setForeground(Color.white);
+        titleLabel.setFont(new Font("Serif", Font.PLAIN, (int)(62 * scale)));
 
-        // (using ShadowLabel)
-        ShadowLabel line1 = new ShadowLabel("About Us");
-        line1.setForeground(Color.white);
-        line1.setFont(new Font("Serif", Font.PLAIN, 44));
-        line1.setBounds(50, 50, 700, 60);
-        line1.setHorizontalAlignment(SwingConstants.CENTER);
+        int titleWidth = (int)(700 * scaleX);
+        int titleX = (screenWidth - titleWidth) / 2;
+        titleLabel.setBounds(titleX, (int)(50 * scaleY), titleWidth, (int)(80 * scaleY));
 
-        // (using ShadowLabel)
-        ShadowLabel line2 = new ShadowLabel("A First-Person Survival Text Adventure");
-        line2.setForeground(Color.white);
-        line2.setFont(new Font("Serif", Font.PLAIN, 28));
-        line2.setBounds(50, 120, 700, 35);
-        line2.setHorizontalAlignment(SwingConstants.CENTER);
+        ShadowLabel infoLabel = new ShadowLabel("<html><center>Created by: [Your Name]<br>A text-based adventure game<br>Navigate the jungle and survive!</center></html>");
+        infoLabel.setForeground(Color.white);
+        infoLabel.setFont(new Font("Serif", Font.PLAIN, (int)(24 * scale)));
+        infoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        // (using JTextArea for text wrapping)
-        String bodyText = "Built by beginner developers Austin Sapp and Caden Saiza " +
-                "using our custom Java engine, The Silent Compass is a passion " +
-                "project designed to test the limits of text-based survival, " +
-                "where every decision determines your fate.\n\n" +
+        int infoWidth = (int)(600 * scaleX);
+        int infoX = (screenWidth - infoWidth) / 2;
+        infoLabel.setBounds(infoX, (int)(150 * scaleY), infoWidth, (int)(200 * scaleY));
 
-                "Your journey begins when your canoe is destroyed in rough " +
-                "river rapids, leaving you stranded deep within a dense, " +
-                "uncharted tropical jungle. You are alone, and your only " +
-                "goal is simple: find civilization.\n\n" +
+        int buttonWidth = (int)(300 * scaleX);
+        int buttonHeight = (int)(50 * scaleY);
+        int buttonX = (screenWidth - buttonWidth) / 2;
 
-                "The game runs entirely in IntelliJ. You interact with " +
-                "the world by selecting any of the choices displayed.";
-
-        descriptionTextArea = new JTextArea(bodyText);
-        descriptionTextArea.setFont(new Font("Serif", Font.PLAIN, 20));
-        descriptionTextArea.setForeground(Color.white);
-        descriptionTextArea.setOpaque(false);
-        descriptionTextArea.setEditable(false);
-        descriptionTextArea.setWrapStyleWord(true);
-        descriptionTextArea.setLineWrap(true);
-        descriptionTextArea.setFocusable(false);
-
-        descriptionTextArea.setBounds(75, 175, 650, 310);
-
-        // The back button
-        JButton backButton = UIHelper.createMenuButton("BACK TO MENU");
-        backButton.setBounds(25, 500, 400, 50);
+        JButton backButton = UIHelper.createMenuButton("BACK TO MENU", scale);
+        backButton.setBounds(buttonX, (int)(400 * scaleY), buttonWidth, buttonHeight);
         backButton.addActionListener(e -> game.showScreen("mainMenu"));
 
-        // add everything to the panel
-        this.add(line1);
-        this.add(line2);
-        this.add(descriptionTextArea);
-        this.add(backButton);
-        this.add(backgroundPanel);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        // Draw the semi-transparent black rectangle behind the JTextArea
-        if (descriptionTextArea != null) {
-            Graphics2D g2d = (Graphics2D) g.create();
-
-            // Increased opacity from 180 to 220 for better readability
-            g2d.setColor(new Color(0, 0, 0, 220)); // <-- WAS 180
-
-            // Draw the rounded rectangle with the same padding
-            g2d.fillRoundRect(descriptionTextArea.getX() - 10, // x
-                    descriptionTextArea.getY() - 10, // y
-                    descriptionTextArea.getWidth() + 20, // width
-                    descriptionTextArea.getHeight() + 20, // height
-                    15, 15);
-
-            g2d.dispose();
-        }
+        add(titleLabel);
+        add(infoLabel);
+        add(backButton);
+        add(backgroundPanel);
     }
 }

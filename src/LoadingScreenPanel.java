@@ -1,97 +1,45 @@
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.Timer;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import java.awt.Color;
 import java.awt.Font;
-import java.util.Random;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
-// This is our new, "smart" loading screen panel.
 public class LoadingScreenPanel extends JPanel {
 
-    private ShadowLabel loadingText;
-    private ShadowLabel tipText;
-    private Timer animationTimer;
-    private Random random;
+    private int screenWidth;
+    private int screenHeight;
+    private double scale;
 
-    private final String[] loadingFrames = {"Loading.", "Loading..", "Loading..."};
+    public LoadingScreenPanel(Game game, int screenWidth, int screenHeight) {
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
 
-    private final String[] survivalTips = {
-            "Keep an eye on your hunger and thirst.",
-            "Not all plants are safe to eat.",
-            "A sharp tool is a friend.",
-            "Listen for the sounds of the jungle; they can warn you of danger.",
-            "Shelter is your first priority before nightfall."
-    };
+        setLayout(null);
+        setBackground(Color.BLACK);
 
-    private int currentFrame = 0;
-
-    public LoadingScreenPanel(Game game) {
-
-        this.setLayout(null);
-        this.random = new Random();
-
-        loadingText = new ShadowLabel("Loading...");
-        loadingText.setForeground(Color.white);
-        loadingText.setFont(new Font("Serif", Font.PLAIN, 52)); // Was 36
-        loadingText.setBounds(100, 225, 600, 100);
-        loadingText.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // SET UP THE "TIP" TEXT ---
-        tipText = new ShadowLabel("Tip: Keep an eye on your hunger and thirst.");
-        tipText.setForeground(Color.white);
-        // FONT SIZE CHANGED
-        tipText.setFont(new Font("Serif", Font.PLAIN, 24)); // Was 20
-        tipText.setBounds(50, 325, 700, 50);
-        tipText.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // SET UP THE ANIMATION TIMER
-        animationTimer = new Timer(300, e -> {
-            currentFrame = (currentFrame + 1) % loadingFrames.length;
-            loadingText.setText(loadingFrames[currentFrame]);
-        });
-        animationTimer.setRepeats(true);
-
-        // SET UP THE BACKGROUND
-        ImagePanel backgroundPanel = new ImagePanel(UIHelper.findImagePath("loading_screen_background"));
-        backgroundPanel.setBounds(0, 0, 800, 600);
-
-        // SET UP THE "SMART" LISTENER
-        this.addAncestorListener(new AncestorListener() {
-            @Override
-            public void ancestorAdded(AncestorEvent event) {
-                // This runs when the panel becomes VISIBLE
-                selectRandomTip();
-                resetAnimation();
-                animationTimer.start();
-            }
-
-            @Override
-            public void ancestorRemoved(AncestorEvent event) {
-                // This runs when the panel becomes HIDDEN
-                animationTimer.stop();
-            }
-
-            @Override
-            public void ancestorMoved(AncestorEvent event) {
-                // We don't need this one
-            }
-        });
-
-        this.add(loadingText);
-        this.add(tipText);
-        this.add(backgroundPanel);
+        // Calculate scale
+        double scaleX = screenWidth / 800.0;
+        double scaleY = screenHeight / 600.0;
+        this.scale = Math.min(scaleX, scaleY);
     }
 
-    // (Helper methods are unchanged)
-    private void selectRandomTip() {
-        int index = random.nextInt(survivalTips.length);
-        tipText.setText(survivalTips[index]);
-    }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-    private void resetAnimation() {
-        currentFrame = 0;
-        loadingText.setText(loadingFrames[0]);
+        // Draw "Loading..." text in center
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Serif", Font.PLAIN, (int)(48 * scale)));
+
+        String text = "Loading...";
+        java.awt.FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int x = (screenWidth - textWidth) / 2;
+        int y = screenHeight / 2;
+
+        g2d.drawString(text, x, y);
     }
 }

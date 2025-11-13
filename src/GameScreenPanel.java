@@ -13,8 +13,8 @@ public class GameScreenPanel extends JPanel {
     private JTextArea mainTextArea;
     private JButton choice1, choice2, choice3, choice4;
     private ShadowLabel hpLabelNumber, weaponLabelName;
-    private Font gameFont = new Font("Serif", Font.PLAIN, 26);
-    private Font smallerGameFont = new Font("Serif", Font.PLAIN, 22);
+    private Font gameFont;
+    private Font smallerGameFont;
 
     private Random random;
 
@@ -25,6 +25,10 @@ public class GameScreenPanel extends JPanel {
 
     private String newWeaponFound;
     private GameLocation postWeaponChoicePosition;
+
+    private int screenWidth;
+    private int screenHeight;
+    private double scale;
 
     private enum GameLocation {
         START, DECISION_START, SEARCH_WRECKAGE, WRECKAGE_DANGER, SEARCH_WRECKAGE_BAG, AFTER_WRECKAGE_DECISION,
@@ -47,92 +51,110 @@ public class GameScreenPanel extends JPanel {
 
     private final String DEFAULT_BACKGROUND = "black_screen";
 
-    public GameScreenPanel(Game game) {
+    public GameScreenPanel(Game game, int screenWidth, int screenHeight) {
         this.game = game;
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
         this.setLayout(null);
         this.random = new Random();
 
-        final int HEADER_Y = 15;
-        final int COMPONENT_HEIGHT = 50;
+        double scaleX = screenWidth / 800.0;
+        double scaleY = screenHeight / 600.0;
+        this.scale = Math.min(scaleX, scaleY);
 
+        this.gameFont = new Font("Serif", Font.PLAIN, (int)(26 * scale));
+        this.smallerGameFont = new Font("Serif", Font.PLAIN, (int)(22 * scale));
+
+        final int HEADER_Y = (int)(15 * scaleY);
+        final int COMPONENT_HEIGHT = (int)(50 * scaleY);
 
         JPanel playerPanel = new JPanel();
-        playerPanel.setBounds(50, HEADER_Y, 700, COMPONENT_HEIGHT);
+        playerPanel.setBounds((int)(50 * scaleX), HEADER_Y, (int)(700 * scaleX), COMPONENT_HEIGHT);
         playerPanel.setOpaque(false);
         playerPanel.setLayout(null);
 
-        // --- FIXED BOUNDS (Shifted Weapon Section Left) ---
-
         ShadowLabel hpLabel = new ShadowLabel("Health:");
-        hpLabel.setForeground(Color.white); hpLabel.setFont(gameFont);
-        hpLabel.setBounds(0, 0, 100, COMPONENT_HEIGHT);
+        hpLabel.setForeground(Color.white);
+        hpLabel.setFont(gameFont);
+        hpLabel.setBounds(0, 0, (int)(100 * scaleX), COMPONENT_HEIGHT);
         playerPanel.add(hpLabel);
 
         hpLabelNumber = new ShadowLabel("");
         hpLabelNumber.setForeground(Color.white);
         hpLabelNumber.setFont(gameFont);
-        hpLabelNumber.setBounds(100, 0, 35, COMPONENT_HEIGHT); // Slightly wider for double digits
+        hpLabelNumber.setBounds((int)(100 * scaleX), 0, (int)(35 * scaleX), COMPONENT_HEIGHT);
         playerPanel.add(hpLabelNumber);
 
         hpBonusLabel = new ShadowLabel("");
         hpBonusLabel.setForeground(new Color(150, 255, 150));
         hpBonusLabel.setFont(gameFont);
         hpBonusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        // Added 5px gap for space (start at 135)
-        hpBonusLabel.setBounds(135, 0, 100, COMPONENT_HEIGHT);
+        hpBonusLabel.setBounds((int)(135 * scaleX), 0, (int)(100 * scaleX), COMPONENT_HEIGHT);
         playerPanel.add(hpBonusLabel);
 
-        // --- WEAPON SECTION (x=280 onwards) ---
-        // Moved the start of this section from 300 to 280
-
         ShadowLabel weaponLabel = new ShadowLabel("Weapon:");
-        weaponLabel.setForeground(Color.white); weaponLabel.setFont(gameFont);
-        weaponLabel.setBounds(280, 0, 100, COMPONENT_HEIGHT); // Shifted left
+        weaponLabel.setForeground(Color.white);
+        weaponLabel.setFont(gameFont);
+        weaponLabel.setBounds((int)(280 * scaleX), 0, (int)(100 * scaleX), COMPONENT_HEIGHT);
         playerPanel.add(weaponLabel);
 
         weaponLabelName = new ShadowLabel("");
-        weaponLabelName.setForeground(Color.white); weaponLabelName.setFont(gameFont);
-        weaponLabelName.setBounds(380, 0, 170, COMPONENT_HEIGHT); // Shifted left
+        weaponLabelName.setForeground(Color.white);
+        weaponLabelName.setFont(gameFont);
+        weaponLabelName.setBounds((int)(380 * scaleX), 0, (int)(170 * scaleX), COMPONENT_HEIGHT);
         playerPanel.add(weaponLabelName);
 
         damageBonusLabel = new ShadowLabel("");
         damageBonusLabel.setForeground(new Color(255, 150, 150));
         damageBonusLabel.setFont(gameFont);
         damageBonusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        // Added 5px gap for space (start at 555), increased width
-        damageBonusLabel.setBounds(555, 0, 150, COMPONENT_HEIGHT);
+        damageBonusLabel.setBounds((int)(555 * scaleX), 0, (int)(150 * scaleX), COMPONENT_HEIGHT);
         playerPanel.add(damageBonusLabel);
-        // --- END FIXED BOUNDS ---
-
 
         this.player = new Player(20, "Pocket Knife");
 
-
         mainTextArea = new JTextArea("");
-        mainTextArea.setFont(new Font("Serif", Font.PLAIN, 24));
+        mainTextArea.setFont(new Font("Serif", Font.PLAIN, (int)(24 * scale)));
         mainTextArea.setForeground(Color.white);
-        mainTextArea.setOpaque(false); mainTextArea.setEditable(false);
-        mainTextArea.setWrapStyleWord(true); mainTextArea.setLineWrap(true);
+        mainTextArea.setOpaque(false);
+        mainTextArea.setEditable(false);
+        mainTextArea.setWrapStyleWord(true);
+        mainTextArea.setLineWrap(true);
         mainTextArea.setFocusable(false);
-        mainTextArea.setBounds(75, 80, 650, 270);
+        mainTextArea.setBounds((int)(75 * scaleX), (int)(80 * scaleY), (int)(650 * scaleX), (int)(270 * scaleY));
 
         JPanel choiceButtonPanel = new JPanel();
-        choiceButtonPanel.setBounds(75, 360, 650, 200);
+        choiceButtonPanel.setBounds((int)(75 * scaleX), (int)(360 * scaleY), (int)(650 * scaleX), (int)(200 * scaleY));
         choiceButtonPanel.setOpaque(false);
-        choiceButtonPanel.setLayout(new GridLayout(4, 1, 0, 10));
+        choiceButtonPanel.setLayout(new GridLayout(4, 1, 0, (int)(10 * scaleY)));
 
         ChoiceHandler choiceHandler = new ChoiceHandler();
-        choice1 = createGameButton(""); choice1.setActionCommand("c1"); choice1.addActionListener(choiceHandler); choiceButtonPanel.add(choice1);
-        choice2 = createGameButton(""); choice2.setActionCommand("c2"); choice2.addActionListener(choiceHandler); choiceButtonPanel.add(choice2);
-        choice3 = createGameButton(""); choice3.setActionCommand("c3"); choice3.addActionListener(choiceHandler); choiceButtonPanel.add(choice3);
-        choice4 = createGameButton(""); choice4.setActionCommand("c4"); choice4.addActionListener(choiceHandler); choiceButtonPanel.add(choice4);
+        choice1 = createGameButton("");
+        choice1.setActionCommand("c1");
+        choice1.addActionListener(choiceHandler);
+        choiceButtonPanel.add(choice1);
+
+        choice2 = createGameButton("");
+        choice2.setActionCommand("c2");
+        choice2.addActionListener(choiceHandler);
+        choiceButtonPanel.add(choice2);
+
+        choice3 = createGameButton("");
+        choice3.setActionCommand("c3");
+        choice3.addActionListener(choiceHandler);
+        choiceButtonPanel.add(choice3);
+
+        choice4 = createGameButton("");
+        choice4.setActionCommand("c4");
+        choice4.addActionListener(choiceHandler);
+        choiceButtonPanel.add(choice4);
 
         this.add(playerPanel);
         this.add(mainTextArea);
         this.add(choiceButtonPanel);
 
         backgroundPanel = new ImagePanel(null);
-        backgroundPanel.setBounds(0, 0, 800, 600);
+        backgroundPanel.setBounds(0, 0, screenWidth, screenHeight);
         this.add(backgroundPanel);
 
         playerSetup();
@@ -182,7 +204,7 @@ public class GameScreenPanel extends JPanel {
         button.setHorizontalAlignment(SwingConstants.CENTER);
 
         final Font originalFont = button.getFont();
-        final Font hoverFont = originalFont.deriveFont(Font.PLAIN, 24f);
+        final Font hoverFont = originalFont.deriveFont(Font.PLAIN, (float)(24 * scale));
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -615,7 +637,7 @@ public class GameScreenPanel extends JPanel {
     }
 
     public void afterStalkerFight() {
-        position = GameLocation.AFTER_SPIDER_FIGHT;
+        position = GameLocation.AFTER_STALKER_FIGHT;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText("The stalker dissolves into shadows. It dropped a sharp Obsidian Dagger!");
 
@@ -648,7 +670,6 @@ public class GameScreenPanel extends JPanel {
         setChoices("Return to courtyard", "", "", "");
     }
 
-
     public void decisionFinal() {
         position = GameLocation.DECISION_FINAL;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
@@ -661,7 +682,6 @@ public class GameScreenPanel extends JPanel {
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         endingEscape();
     }
-
 
     public void fight() {
         position = GameLocation.FIGHT;
@@ -947,7 +967,7 @@ public class GameScreenPanel extends JPanel {
                             break;
                         case "c2":
                             if (player.hasCompass()) {
-                                mainTextArea.setText("You check your compass... it seems to waver, pointing to the left side of the bridge. You cross carefully, avoiding the weak planks on the right.\nYou make it!");
+                                mainTextArea.setText("You check your compass... it seems to waver, pointing to the left side of the bridge. You cross carefully, avoiding the weak planks on the right!");
                                 setChoices("Continue", "", "", "");
                                 position = GameLocation.BRIDGE_CROSS_SUCCESS;
                             } else if (random.nextInt(100) < 50) {
@@ -1084,7 +1104,7 @@ public class GameScreenPanel extends JPanel {
                 return rand.nextInt(6) + 2 + minDamageBonus;
             } else if (weapon.equals("Rusty Pipe")) {
                 return rand.nextInt(5) + 2 + minDamageBonus;
-            } else { // Pocket Knife
+            } else {
                 return rand.nextInt(4) + 1 + minDamageBonus;
             }
         }
