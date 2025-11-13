@@ -1,12 +1,20 @@
 import java.util.Random;
+import java.awt.Color;
 
 public class GameLogic {
     private GameState state;
     private Random random;
     private GameUICallback uiCallback;
 
+    // NEW: Color constants for visual feedback
+    private static final Color COLOR_GOOD = new Color(100, 255, 100); // Bright green
+    private static final Color COLOR_BAD = new Color(255, 100, 100); // Red
+    private static final Color COLOR_SPECIAL = new Color(100, 200, 255); // Cyan
+    private static final Color COLOR_WARNING = new Color(255, 200, 100); // Yellow/Orange
+
     public interface GameUICallback {
         void updateText(String text);
+        void updateColoredText(String text, Color color); // NEW
         void setChoices(String c1, String c2, String c3, String c4);
         void updatePlayerHP(int hp);
         void updatePlayerWeapon(String weapon);
@@ -56,7 +64,7 @@ public class GameLogic {
             if (!state.getPlayer().isAlive()) {
                 lose("The plank shifts and crushes you. Game Over.");
             } else {
-                uiCallback.updateText("The plank shifts dangerously! You barely escape but get badly hurt.\n(You lost " + damage + " Health)");
+                uiCallback.updateColoredText("The plank shifts dangerously! You barely escape but get badly hurt.\n(You lost " + damage + " Health)", COLOR_BAD);
                 uiCallback.setChoices("Continue", "", "", "");
             }
         } else if (chance < 70) {
@@ -68,7 +76,7 @@ public class GameLogic {
                 weaponChoice(newWeapon, GameLocation.AFTER_WRECKAGE_DECISION);
             }
         } else {
-            uiCallback.updateText("You cut your hand on a sharp edge but find nothing useful.\n(You lost 2 Health)");
+            uiCallback.updateColoredText("You cut your hand on a sharp edge but find nothing useful.\n(You lost 2 Health)", COLOR_BAD);
             state.getPlayer().takeDamage(2);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
             uiCallback.setChoices("Continue", "", "", "");
@@ -78,7 +86,7 @@ public class GameLogic {
     public void searchWreckageBag() {
         state.setPosition(GameLocation.SEARCH_WRECKAGE_BAG);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("You find a soggy First Aid Kit! You use the remaining supplies.\n(Healed 5 Health)");
+        uiCallback.updateColoredText("You find a soggy First Aid Kit! You use the remaining supplies.\n(Healed 5 Health)", COLOR_GOOD);
         state.getPlayer().heal(random, 5, 0);
         uiCallback.updatePlayerHP(state.getPlayer().getHp());
         uiCallback.setChoices("Continue", "", "", "");
@@ -137,7 +145,7 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
         int healAmount = state.getPlayer().heal(random, 3, 4);
         uiCallback.updatePlayerHP(state.getPlayer().getHp());
-        uiCallback.updateText("You find a sheltered spot under a large tree and rest. You find some edible berries.\n\n(Recovered " + healAmount + " Health)");
+        uiCallback.updateColoredText("You find a sheltered spot under a large tree and rest. You find some edible berries.\n\n(Recovered " + healAmount + " Health)", COLOR_GOOD);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -175,7 +183,7 @@ public class GameLogic {
         String currentDamage = state.getPlayer().getAttackDamageRange();
         String newDamage = state.getPlayer().getAttackDamageRange(newWeaponName);
 
-        uiCallback.updateText("You found a " + newWeaponName + "!");
+        uiCallback.updateColoredText("You found a " + newWeaponName + "!", COLOR_GOOD);
         uiCallback.setChoices("Switch to " + newWeaponName + " (Damage: " + newDamage + ")",
                 "Keep " + currentWeaponName + " (Damage: " + currentDamage + ")",
                 "", "");
@@ -191,9 +199,8 @@ public class GameLogic {
     public void afterSpiderFight() {
         state.setPosition(GameLocation.AFTER_SPIDER_FIGHT);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)");
+        uiCallback.updateColoredText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)", COLOR_SPECIAL);
         state.getPlayer().setHasCompass(true);
-        // NEW: Finding compass gives inspiration
         state.getPlayer().applyInspired(3);
         uiCallback.setChoices("Return to the jungle fork", "", "", "");
     }
@@ -203,7 +210,7 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
         int healAmount = state.getPlayer().heal(random, 2, 3);
         uiCallback.updatePlayerHP(state.getPlayer().getHp());
-        uiCallback.updateText("You sit down to rest. You find a 'First Aid Leaf' and apply it to your scratches.\n\n(Recovered " + healAmount + " Health)");
+        uiCallback.updateColoredText("You sit down to rest. You find a 'First Aid Leaf' and apply it to your scratches.\n\n(Recovered " + healAmount + " Health)", COLOR_GOOD);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -216,11 +223,11 @@ public class GameLogic {
         uiCallback.updatePlayerHP(state.getPlayer().getHp());
 
         String currentText = "You head towards the swamp. The ground suddenly gives way! It's quicksand!\nYou frantically grab a vine and pull yourself out, exhausted and injured.\n(You lost " + damage + " Health)";
-        uiCallback.updateText(currentText);
 
         if (!state.getPlayer().isAlive()) {
             lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
         } else {
+            uiCallback.updateColoredText(currentText, COLOR_BAD);
             uiCallback.setChoices("Return to the fork", "", "", "");
         }
     }
@@ -290,12 +297,12 @@ public class GameLogic {
         int chance = random.nextInt(100);
 
         if (chance < 40 && !state.getPlayer().hasWhetstone()) {
-            uiCallback.updateText("You find a smooth Whetstone on the shore!\n\n(Your weapons will now do +1 minimum damage!)");
+            uiCallback.updateColoredText("You find a smooth Whetstone on the shore!\n\n(Your weapons will now do +1 minimum damage!)", COLOR_GOOD);
             state.getPlayer().setHasWhetstone(true);
             uiCallback.showDamageBonus("(+1 Damage)");
             uiCallback.setChoices("Return to the delta", "", "", "");
         } else if (chance < 70 && !state.getPlayer().hasToughHide()) {
-            uiCallback.updateText("You find a thick, leathery hide on the island. It looks durable.\n\n(Your Max HP has permanently increased by 5!)");
+            uiCallback.updateColoredText("You find a thick, leathery hide on the island. It looks durable.\n\n(Your Max HP has permanently increased by 5!)", COLOR_GOOD);
             state.getPlayer().setHasToughHide(true);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
             uiCallback.showHPBonus("(+5 HP)");
@@ -313,7 +320,7 @@ public class GameLogic {
             uiCallback.updateText("You navigate the maze and find the main river channel again. It leads to a high ridge.");
             uiCallback.setChoices("Continue to the ridge", "", "", "");
         } else {
-            uiCallback.updateText("You get lost in the mangroves and cut yourself on sharp shells.\n(You lost 2 Health)");
+            uiCallback.updateColoredText("You get lost in the mangroves and cut yourself on sharp shells.\n(You lost 2 Health)", COLOR_BAD);
             state.getPlayer().takeDamage(2);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
             if (!state.getPlayer().isAlive()) {
@@ -341,13 +348,13 @@ public class GameLogic {
         if (!state.getPlayer().hasPendant()) {
             text += "Inside a rotted bag, you find an ornate Pendant!";
             state.getPlayer().setHasPendant(true);
-            // NEW: Finding pendant gives inspiration
             state.getPlayer().applyInspired(3);
+            uiCallback.updateColoredText(text, COLOR_SPECIAL);
         } else {
             text += "You already found the pendant. There is nothing else here.";
+            uiCallback.updateText(text);
         }
 
-        uiCallback.updateText(text);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -401,15 +408,15 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
 
         if (state.getPlayer().getWeapon().equals("Obsidian Dagger")) {
-            uiCallback.updateText("You search the crumbling building and find a pristine First Aid Kit!\n\n(Healed 10 Health)");
+            uiCallback.updateColoredText("You search the crumbling building and find a pristine First Aid Kit!\n\n(Healed 10 Health)", COLOR_GOOD);
             state.getPlayer().heal(random, 10, 0);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
         } else if (!state.getPlayer().hasWhetstone()) {
-            uiCallback.updateText("You search the building and find a strange, smooth Whetstone!\n\n(Your weapons will now do +1 minimum damage!)");
+            uiCallback.updateColoredText("You search the building and find a strange, smooth Whetstone!\n\n(Your weapons will now do +1 minimum damage!)", COLOR_GOOD);
             state.getPlayer().setHasWhetstone(true);
             uiCallback.showDamageBonus("(+1 Damage)");
         } else if (!state.getPlayer().hasToughHide()) {
-            uiCallback.updateText("You search the building and find a tough, leathery hide.\n\n(Your Max HP has permanently increased by 5!)");
+            uiCallback.updateColoredText("You search the building and find a tough, leathery hide.\n\n(Your Max HP has permanently increased by 5!)", COLOR_GOOD);
             state.getPlayer().setHasToughHide(true);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
             uiCallback.showHPBonus("(+5 HP)");
@@ -426,7 +433,7 @@ public class GameLogic {
         uiCallback.setChoices("Head towards the smoke", "Try to cross the rope bridge (50% Fail)", "Give up and stay here", "");
     }
 
-    // NEW: Combat methods with combo and status effects
+    // Combat methods with combo, status effects, and colors
     public void fight() {
         state.setPosition(GameLocation.FIGHT);
         uiCallback.setBackground("black_screen");
@@ -434,12 +441,10 @@ public class GameLogic {
         StringBuilder fightText = new StringBuilder();
         fightText.append(state.getCurrentEnemy().getName()).append(" Health: ").append(state.getCurrentEnemy().getHp());
 
-        // Show status effects if any
         if (state.getPlayer().hasActiveStatusEffects()) {
             fightText.append("\n\nStatus: ").append(state.getPlayer().getStatusEffectSummary());
         }
 
-        // Show combo if active
         if (state.getPlayer().getComboCount() > 0) {
             fightText.append("\nCombo: x").append(state.getPlayer().getComboCount());
         }
@@ -448,7 +453,6 @@ public class GameLogic {
 
         uiCallback.updateText(fightText.toString());
 
-        // Check if stunned
         if (state.getPlayer().isStunned()) {
             uiCallback.setChoices("(Stunned - Cannot Attack)", "Heal (costs a turn)", "Attempt to Flee", "");
         } else {
@@ -460,7 +464,6 @@ public class GameLogic {
         state.setPosition(GameLocation.PLAYER_ATTACK);
         uiCallback.setBackground("black_screen");
 
-        // Check if stunned
         if (state.getPlayer().isStunned()) {
             state.getPlayer().clearStun();
             uiCallback.updateText("You shake off the stun and prepare to fight!");
@@ -473,8 +476,6 @@ public class GameLogic {
 
         int finalDamage = isCritical ? (int)(baseDamage * 1.5) : baseDamage;
         state.getCurrentEnemy().takeDamage(finalDamage);
-
-        // Increment combo on successful hit
         state.getPlayer().incrementCombo();
 
         StringBuilder attackText = new StringBuilder();
@@ -485,13 +486,17 @@ public class GameLogic {
             attackText.append("\n\nCRITICAL HIT!");
         }
 
-        // Show combo message
         String comboMsg = state.getPlayer().getComboMessage();
         if (!comboMsg.isEmpty()) {
             attackText.append("\n").append(comboMsg);
         }
 
-        uiCallback.updateText(attackText.toString());
+        if (isCritical || state.getPlayer().getComboCount() >= 2) {
+            uiCallback.updateColoredText(attackText.toString(), COLOR_GOOD);
+        } else {
+            uiCallback.updateText(attackText.toString());
+        }
+
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -501,7 +506,7 @@ public class GameLogic {
 
         int healAmount = state.getPlayer().heal(random, 6, 6);
         uiCallback.updatePlayerHP(state.getPlayer().getHp());
-        uiCallback.updateText("You tend to your wounds, bandaging and resting briefly.\n(Healed " + healAmount + " Health)");
+        uiCallback.updateColoredText("You tend to your wounds, bandaging and resting briefly.\n(Healed " + healAmount + " Health)", COLOR_GOOD);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -510,11 +515,13 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
 
         StringBuilder attackText = new StringBuilder();
+        boolean tookDamage = false;
 
         if (state.getPlayer().canDodge(random)) {
             attackText.append("The ").append(state.getCurrentEnemy().getName());
             attackText.append(" attacks, but you dodge out of the way!\n\n(Damage avoided!)");
         } else {
+            tookDamage = true;
             int enemyDamage = state.getCurrentEnemy().getAttackDamage(random);
             state.getPlayer().takeDamage(enemyDamage);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
@@ -522,19 +529,23 @@ public class GameLogic {
             attackText.append("The ").append(state.getCurrentEnemy().getName());
             attackText.append(" attacks you for ").append(enemyDamage).append(" damage!");
 
-            // NEW: Try to apply status effect
             String statusEffect = state.getCurrentEnemy().tryApplyStatusEffect(random, state.getPlayer());
             attackText.append(statusEffect);
         }
 
-        // NEW: Process status effects at end of turn
         String statusDamage = state.getPlayer().processStatusEffects();
         if (!statusDamage.isEmpty()) {
+            tookDamage = true;
             attackText.append("\n\n").append(statusDamage);
             uiCallback.updatePlayerHP(state.getPlayer().getHp());
         }
 
-        uiCallback.updateText(attackText.toString());
+        if (tookDamage) {
+            uiCallback.updateColoredText(attackText.toString(), COLOR_BAD);
+        } else {
+            uiCallback.updateColoredText(attackText.toString(), COLOR_GOOD);
+        }
+
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -545,12 +556,11 @@ public class GameLogic {
         StringBuilder winText = new StringBuilder();
         winText.append("You defeated the ").append(state.getCurrentEnemy().getName()).append("!");
 
-        // Show final combo
         if (state.getPlayer().getComboCount() >= 3) {
             winText.append("\n\nYou fought with exceptional skill!");
         }
 
-        uiCallback.updateText(winText.toString());
+        uiCallback.updateColoredText(winText.toString(), COLOR_GOOD);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
@@ -558,15 +568,14 @@ public class GameLogic {
         state.setPosition(GameLocation.FLEE_RESULT);
         uiCallback.setBackground("black_screen");
 
-        // Fleeing resets combo
         state.getPlayer().resetCombo();
 
         if (success) {
-            uiCallback.updateText("You managed to escape!");
+            uiCallback.updateColoredText("You managed to escape!", COLOR_GOOD);
             uiCallback.setChoices("Continue", "", "", "");
         } else {
             if (state.getPlayer().canDodge(random)) {
-                uiCallback.updateText("You couldn't get away, but you dodge the " + state.getCurrentEnemy().getName() + "'s attack as you retreat!");
+                uiCallback.updateColoredText("You couldn't get away, but you dodge the " + state.getCurrentEnemy().getName() + "'s attack as you retreat!", COLOR_GOOD);
                 uiCallback.setChoices("Continue", "", "", "");
                 state.setPosition(GameLocation.ENEMY_ATTACK_DISPLAY);
             } else {
@@ -574,7 +583,7 @@ public class GameLogic {
                 state.getPlayer().takeDamage(enemyDamage);
                 uiCallback.updatePlayerHP(state.getPlayer().getHp());
 
-                uiCallback.updateText("You couldn't get away! The " + state.getCurrentEnemy().getName() + " attacks!\n(Received " + enemyDamage + " damage)");
+                uiCallback.updateColoredText("You couldn't get away! The " + state.getCurrentEnemy().getName() + " attacks!\n(Received " + enemyDamage + " damage)", COLOR_BAD);
                 uiCallback.setChoices("Continue", "", "", "");
                 state.setPosition(GameLocation.ENEMY_ATTACK_DISPLAY);
             }
@@ -585,28 +594,28 @@ public class GameLogic {
     public void lose(String message) {
         state.setPosition(GameLocation.LOSE);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText(message + "\n\nGAME OVER");
+        uiCallback.updateColoredText(message + "\n\nGAME OVER", COLOR_BAD);
         uiCallback.setChoices("Restart", "Main Menu", "", "");
     }
 
     public void endingEscape() {
         state.setPosition(GameLocation.ENDING_ESCAPE);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("On the other side, you find a clear trail that leads you out of the jungle to a small village.\n\n(Escape Ending)");
+        uiCallback.updateColoredText("On the other side, you find a clear trail that leads you out of the jungle to a small village.\n\n(Escape Ending)", COLOR_GOOD);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
     public void endingRescue() {
         state.setPosition(GameLocation.ENDING_RESCUE);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("You head towards the smoke. A search party finds you! They were looking for you.\nYour Pendant seems to glow as they approach.\n\n(Rescue Ending)");
+        uiCallback.updateColoredText("You head towards the smoke. A search party finds you! They were looking for you.\nYour Pendant seems to glow as they approach.\n\n(Rescue Ending)", COLOR_SPECIAL);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
     public void endingLost() {
         state.setPosition(GameLocation.ENDING_LOST);
         uiCallback.setBackground("black_screen");
-        uiCallback.updateText("You collapse, too weak to go on. The jungle... it wins.\nYou are never seen again.\n\n(Lost Forever Ending)");
+        uiCallback.updateColoredText("You collapse, too weak to go on. The jungle... it wins.\nYou are never seen again.\n\n(Lost Forever Ending)", COLOR_BAD);
         uiCallback.setChoices("Continue", "", "", "");
     }
 
