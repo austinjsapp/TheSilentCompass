@@ -2,113 +2,102 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.CardLayout;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Dimension;
+import java.awt.KeyboardFocusManager;
+import java.awt.KeyEventDispatcher;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import javax.swing.JLayeredPane;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
-import java.awt.Image; // <-- Import for scaling images
 
-// This is the main controller/director for our entire application.
+/**
+ * Main controller for The Silent Compass game.
+ * Handles screen management, music, fullscreen, and settings.
+ */
 public class Game {
+    // Screen dimension constants
+    private static final int DEFAULT_WIDTH = 800;
+    private static final int DEFAULT_HEIGHT = 600;
 
-    JFrame window;
-    CardLayout cardLayout;
-    JPanel mainPanel;
+    // Loading screen delay constants
+    private static final int MIN_LOADING_DELAY = 1500;
+    private static final int MAX_LOADING_DELAY = 3000;
 
+    private JFrame window;
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
     private JLayeredPane layeredPane;
-    private JButton muteButton;
-    private ImageIcon muteIcon;
-    private ImageIcon unmuteIcon;
-    private boolean isMuted = false;
 
     private MusicManager musicManager;
     private Map<String, String> musicMap;
     private String currentMusicPath = "";
+    private String previousScreen = "mainMenu";
     private Random random = new Random();
 
+    // Screen dimensions for dynamic scaling
+    private int screenWidth;
+    private int screenHeight;
+    private boolean isFullscreen = true;
+    private GraphicsDevice graphicsDevice;
+
+    // Volume controls
+    private float musicVolume = 1.0f;
+    private float sfxVolume = 1.0f;
+
+    // Panels
+    private SettingsPanel settingsPanel;
+
     public static void main(String[] args) {
-        new Game();
+        javax.swing.SwingUtilities.invokeLater(() -> new Game());
     }
 
     public Game() {
         window = new JFrame("The Silent Compass");
-        window.setSize(800, 600);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setUndecorated(true);
+
+        graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        if (graphicsDevice.isFullScreenSupported()) {
+            graphicsDevice.setFullScreenWindow(window);
+            Dimension screenSize = window.getSize();
+            screenWidth = screenSize.width;
+            screenHeight = screenSize.height;
+        } else {
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+            screenWidth = screenSize.width;
+            screenHeight = screenSize.height;
+            window.setSize(screenWidth, screenHeight);
+        }
+
+        setupKeyListener();
 
         layeredPane = new JLayeredPane();
-        layeredPane.setBounds(0, 0, 800, 600);
+        layeredPane.setBounds(0, 0, screenWidth, screenHeight);
         window.add(layeredPane);
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
-        mainPanel.setBounds(0, 0, 800, 600);
+        mainPanel.setBounds(0, 0, screenWidth, screenHeight);
         layeredPane.add(mainPanel, JLayeredPane.DEFAULT_LAYER);
 
+        setupMusicManager();
 
-        // Define the button size
-        int iconSize = 50;
-
-        // Load the *original* images first
-        ImageIcon originalUnmuteIcon = new ImageIcon(UIHelper.findImagePath("musiciconunmuted"));
-        ImageIcon originalMuteIcon = new ImageIcon(UIHelper.findImagePath("musiciconmuted"));
-
-        // Get the 'Image' object from the icon, scale it, and make a new icon
-        Image scaledUnmuteImg = originalUnmuteIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
-
-        // It was 'originalMMuteIcon', now it's 'originalMuteIcon'
-        Image scaledMuteImg = originalMuteIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
-
-        // Create the final, scaled icons
-        unmuteIcon = new ImageIcon(scaledUnmuteImg);
-        muteIcon = new ImageIcon(scaledMuteImg);
-
-        muteButton = new JButton();
-        muteButton.setIcon(unmuteIcon); // Use the new *scaled* icon
-
-
-        // X = 720 (800 - 50 - 30 for safety/border)
-        // Y = 500 (600 - 50 - 50 for safety/border)
-        muteButton.setBounds(720, 500, iconSize, iconSize);
-
-        // Style the button
-        muteButton.setOpaque(false);
-        muteButton.setContentAreaFilled(false);
-        muteButton.setBorderPainted(false);
-        muteButton.setFocusPainted(false);
-
-        muteButton.addActionListener(e -> {
-            isMuted = !isMuted;
-            musicManager.setMuted(isMuted);
-
-            if (isMuted) {
-                muteButton.setIcon(muteIcon);
-            } else {
-                muteButton.setIcon(unmuteIcon);
-            }
-        });
-
-        layeredPane.add(muteButton, JLayeredPane.PALETTE_LAYER);
-
-
-        //  MUSIC MANAGER SETUP
-        musicManager = new MusicManager();
-        musicMap = new HashMap<>();
-        musicMap.put("mainMenu", UIHelper.findMusicPath("main_menu_music"));
-        musicMap.put("gameScreen", UIHelper.findMusicPath("game_ambient_music"));
-        musicMap.put("aboutUsScreen", UIHelper.findMusicPath("main_menu_music"));
-
-        JPanel mainMenuScreen = new MainMenuPanel(this);
-        JPanel gameScreen = new GameScreenPanel(this);
-        JPanel aboutUsScreen = new AboutUsScreenPanel(this);
-        JPanel loadingScreen = new LoadingScreenPanel(this);
-        // --- End Panel Creation ---
+        JPanel mainMenuScreen = new MainMenuPanel(this, screenWidth, screenHeight);
+        JPanel gameScreen = new GameScreenPanel(this, screenWidth, screenHeight);
+        JPanel aboutUsScreen = new AboutUsScreenPanel(this, screenWidth, screenHeight);
+        JPanel loadingScreen = new LoadingScreenPanel(this, screenWidth, screenHeight);
+        settingsPanel = new SettingsPanel(this, screenWidth, screenHeight);
 
         mainPanel.add(mainMenuScreen, "mainMenu");
         mainPanel.add(gameScreen, "gameScreen");
         mainPanel.add(aboutUsScreen, "aboutUsScreen");
         mainPanel.add(loadingScreen, "loadingScreen");
+        mainPanel.add(settingsPanel, "settings");
 
         currentMusicPath = musicMap.get("mainMenu");
         if (currentMusicPath != null) {
@@ -119,10 +108,42 @@ public class Game {
         window.setVisible(true);
     }
 
+    private void setupKeyListener() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    openSettings();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    public void openSettings() {
+        settingsPanel.refreshSettings();
+        cardLayout.show(mainPanel, "settings");
+    }
+
+    public void resumeFromSettings() {
+        cardLayout.show(mainPanel, previousScreen);
+    }
+
+    private void setupMusicManager() {
+        musicManager = new MusicManager();
+        musicMap = new HashMap<>();
+        musicMap.put("mainMenu", UIHelper.findMusicPath("main_menu_music"));
+        musicMap.put("gameScreen", UIHelper.findMusicPath("game_ambient_music"));
+        musicMap.put("aboutUsScreen", UIHelper.findMusicPath("main_menu_music"));
+    }
+
     public void showScreen(String targetScreenName) {
+        if (!targetScreenName.equals("settings") && !targetScreenName.equals("loadingScreen")) {
+            previousScreen = targetScreenName;
+        }
 
         cardLayout.show(mainPanel, "loadingScreen");
-        muteButton.setVisible(false);
 
         String newMusicPath = musicMap.get(targetScreenName);
         boolean musicNeedsToChange = (newMusicPath != null && !newMusicPath.equals(currentMusicPath));
@@ -132,25 +153,62 @@ public class Game {
 
             musicManager.fadeOut(() -> {
                 musicManager.fadeIn(newMusicPath);
-
-                if (isMuted) {
-                    musicManager.setMuted(true);
-                }
-
                 cardLayout.show(mainPanel, targetScreenName);
-                muteButton.setVisible(true);
             });
 
         } else {
-            // Use the longer, randomized delay
-            int loadingDelay = random.nextInt(1500) + 1500;
+            int loadingDelay = random.nextInt(MAX_LOADING_DELAY - MIN_LOADING_DELAY) + MIN_LOADING_DELAY;
 
             Timer timer = new Timer(loadingDelay, e -> {
                 cardLayout.show(mainPanel, targetScreenName);
-                muteButton.setVisible(true);
             });
             timer.setRepeats(false);
             timer.start();
         }
+    }
+
+    public void setMusicVolume(float volume) {
+        this.musicVolume = volume;
+        musicManager.setVolume(volume);
+    }
+
+    public void setSfxVolume(float volume) {
+        this.sfxVolume = volume;
+        UIHelper.setSfxVolume(volume);
+    }
+
+    public float getMusicVolume() {
+        return musicVolume;
+    }
+
+    public float getSfxVolume() {
+        return sfxVolume;
+    }
+
+    public boolean isFullscreen() {
+        return isFullscreen;
+    }
+
+    public void toggleFullscreen(boolean fullscreen) {
+        this.isFullscreen = fullscreen;
+
+        if (!fullscreen) {
+            graphicsDevice.setFullScreenWindow(null);
+            window.setUndecorated(false);
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        } else {
+            window.setUndecorated(true);
+            if (graphicsDevice.isFullScreenSupported()) {
+                graphicsDevice.setFullScreenWindow(window);
+            }
+        }
+    }
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
     }
 }

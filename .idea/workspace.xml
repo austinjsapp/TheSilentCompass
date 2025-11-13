@@ -4,9 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="commit3">
+    <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&#10;&#10;3). Enhanced UI scaling">
+      <change afterPath="$PROJECT_DIR$/src/SettingsPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GameScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameScreenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/LoadingScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LoadingScreenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainMenuPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainMenuPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MusicManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SoundManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SoundManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UIHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/UIHelper.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,28 +35,31 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "austinjsapp"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;austinjsapp&quot;
   }
-}]]></component>
+}</component>
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="fcadf120-2c80-4423-99c0-88a98fd245f6" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/austinjsapp/TheSilentCompass.git",
-    "accountId": "fcadf120-2c80-4423-99c0-88a98fd245f6"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/austinjsapp/TheSilentCompass.git&quot;,
+    &quot;accountId&quot;: &quot;fcadf120-2c80-4423-99c0-88a98fd245f6&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="AISelfReview" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="34Jlhynzi2JAasBHxtdVB2hqiqD" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -60,7 +70,9 @@
     "Application.Main.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
@@ -121,7 +133,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1760939679425</updated>
-      <workItem from="1760939681416" duration="59020000" />
+      <workItem from="1760939681416" duration="77552000" />
+      <workItem from="1762728632158" duration="4426000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <option name="closed" value="true" />
@@ -147,7 +160,39 @@
       <option name="project" value="LOCAL" />
       <updated>1761701609976</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added permanent buffs &amp; refine UI layout&#10;&#10;1). Implemented Whetstone (+1 Damage) and Tough Hide (+5 HP) items.&#10;2). Integrated buff display directly into the header next to Health and Weapon stats.&#10;3). Adjusted header component positioning (bounds) to fix text cutoff issues for weapon names and bonus text.&#10;4). Fixed bug where enemy HP was not displaying correctly during combat.&#10;5). Resolved NullPointerException during player initialization related to bonus labels.&#10;6). Adjusted main text area and choice button positions for better overall layout.">
+      <option name="closed" value="true" />
+      <created>1761705281016</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1761705281016</updated>
+    </task>
+    <task id="LOCAL-00005" summary="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&quot;&#10;&#10;3). Enhanced UI scaling&quot;">
+      <option name="closed" value="true" />
+      <created>1763000033036</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1763000033037</updated>
+    </task>
+    <task id="LOCAL-00006" summary="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&#10;&#10;3). Enhanced UI scaling">
+      <option name="closed" value="true" />
+      <created>1763000152128</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1763000152128</updated>
+    </task>
+    <task id="LOCAL-00007" summary="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&#10;&#10;3). Enhanced UI scaling">
+      <option name="closed" value="true" />
+      <created>1763000169476</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1763000169476</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -158,7 +203,10 @@
     <MESSAGE value="commit" />
     <MESSAGE value="commit2" />
     <MESSAGE value="commit3" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit3" />
+    <MESSAGE value="Added permanent buffs &amp; refine UI layout&#10;&#10;1). Implemented Whetstone (+1 Damage) and Tough Hide (+5 HP) items.&#10;2). Integrated buff display directly into the header next to Health and Weapon stats.&#10;3). Adjusted header component positioning (bounds) to fix text cutoff issues for weapon names and bonus text.&#10;4). Fixed bug where enemy HP was not displaying correctly during combat.&#10;5). Resolved NullPointerException during player initialization related to bonus labels.&#10;6). Adjusted main text area and choice button positions for better overall layout." />
+    <MESSAGE value="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&quot;&#10;&#10;3). Enhanced UI scaling&quot;" />
+    <MESSAGE value="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&#10;&#10;3). Enhanced UI scaling" />
+    <option name="LAST_COMMIT_MESSAGE" value="1). Added fullscreen support&#10;&#10;2). Optimized code and fixed memory leaks&#10;&#10;3). Enhanced UI scaling" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

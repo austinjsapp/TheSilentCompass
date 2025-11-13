@@ -10,15 +10,16 @@ import javax.swing.Timer;
 import java.awt.event.ActionListener;
 import javax.sound.sampled.BooleanControl;
 
-// This class handles playing, stopping, and looping music with fades.
+/**
+ * Manages music playback with volume control, fading, and muting.
+ */
 public class MusicManager {
 
     private Clip currentClip;
     private Timer fadeTimer;
+    private float currentVolume = 1.0f;
 
-    // Increased fade time from 500ms to 1.5 seconds
-    private final int FADE_DURATION = 1500; // <-- CHANGED
-
+    private final int FADE_DURATION = 1500;
     private final int FADE_STEPS = 20;
     private final int FADE_DELAY = FADE_DURATION / FADE_STEPS;
 
@@ -26,7 +27,6 @@ public class MusicManager {
     private final float GAIN_FULL = 0.0f;
     private final float GAIN_RANGE = GAIN_FULL - GAIN_SILENT;
 
-    // (Helper methods are unchanged)
     private FloatControl getVolumeControl(Clip clip) {
         if (clip != null && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
             return (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -44,7 +44,16 @@ public class MusicManager {
         }
     }
 
-    // (fadeIn is unchanged)
+    /**
+     * Set the overall volume (0.0 to 1.0)
+     */
+    public void setVolume(float volume) {
+        this.currentVolume = Math.max(0.0f, Math.min(1.0f, volume));
+        if (currentClip != null) {
+            setVolume(currentClip, currentVolume);
+        }
+    }
+
     public void fadeIn(String musicFilePath) {
         stopMusic();
 
@@ -71,11 +80,11 @@ public class MusicManager {
 
             fadeTimer = new Timer(FADE_DELAY, e -> {
                 step[0]++;
-                float volume = (float) step[0] / FADE_STEPS;
+                float volume = (float) step[0] / FADE_STEPS * currentVolume;
                 setVolume(currentClip, volume);
 
                 if (step[0] >= FADE_STEPS) {
-                    setVolume(currentClip, 1.0f);
+                    setVolume(currentClip, currentVolume);
                     ((Timer) e.getSource()).stop();
                 }
             });
@@ -86,7 +95,6 @@ public class MusicManager {
         }
     }
 
-    // (fadeOut is unchanged)
     public void fadeOut(Runnable onFadeComplete) {
         if (currentClip == null) {
             onFadeComplete.run();
@@ -103,7 +111,7 @@ public class MusicManager {
 
         fadeTimer = new Timer(FADE_DELAY, e -> {
             step[0]++;
-            float volume = 1.0f - ((float) step[0] / FADE_STEPS);
+            float volume = currentVolume * (1.0f - ((float) step[0] / FADE_STEPS));
             setVolume(clipToFade, volume);
 
             if (step[0] >= FADE_STEPS) {
@@ -116,7 +124,6 @@ public class MusicManager {
         fadeTimer.start();
     }
 
-    // (stopMusic is unchanged)
     public void stopMusic() {
         if (fadeTimer != null && fadeTimer.isRunning()) {
             fadeTimer.stop();
@@ -128,7 +135,6 @@ public class MusicManager {
         }
     }
 
-    // (setMuted is unchanged)
     public void setMuted(boolean mute) {
         if (currentClip != null && currentClip.isControlSupported(BooleanControl.Type.MUTE)) {
             BooleanControl muteControl = (BooleanControl) currentClip.getControl(BooleanControl.Type.MUTE);
