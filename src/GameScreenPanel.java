@@ -11,6 +11,7 @@ public class GameScreenPanel extends JPanel {
 
     private ImagePanel backgroundPanel;
     private JTextArea mainTextArea;
+    private JPanel choiceButtonPanel;
     private JButton choice1, choice2, choice3, choice4;
     private ShadowLabel hpLabelNumber, weaponLabelName, levelXpLabel;
     private Font gameFont;
@@ -128,10 +129,10 @@ public class GameScreenPanel extends JPanel {
         mainTextArea.setWrapStyleWord(true);
         mainTextArea.setLineWrap(true);
         mainTextArea.setFocusable(false);
-        mainTextArea.setBounds((int)(75 * scaleX), (int)(80 * scaleY), (int)(650 * scaleX), (int)(270 * scaleY));
+        mainTextArea.setBounds((int)(75 * scaleX), (int)(80 * scaleY), (int)(650 * scaleX), (int)(250 * scaleY));
 
-        JPanel choiceButtonPanel = new JPanel();
-        choiceButtonPanel.setBounds((int)(75 * scaleX), (int)(360 * scaleY), (int)(650 * scaleX), (int)(200 * scaleY));
+        choiceButtonPanel = new JPanel();
+        choiceButtonPanel.setBounds((int)(75 * scaleX), (int)(350 * scaleY), (int)(650 * scaleX), (int)(200 * scaleY));
         choiceButtonPanel.setOpaque(false);
         choiceButtonPanel.setLayout(new GridLayout(4, 1, 0, (int)(10 * scaleY)));
 
@@ -237,10 +238,15 @@ public class GameScreenPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (mainTextArea != null) {
+        if (mainTextArea != null && choiceButtonPanel != null) {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setColor(new Color(0, 0, 0, 220));
-            g2d.fillRoundRect(mainTextArea.getX() - 10, mainTextArea.getY() - 10, mainTextArea.getWidth() + 20, mainTextArea.getHeight() + 20, 15, 15);
+            // Calculate the combined bounds to cover both text area and button panel
+            int bgX = mainTextArea.getX() - 10;
+            int bgY = mainTextArea.getY() - 10;
+            int bgWidth = mainTextArea.getWidth() + 20;
+            int bgHeight = (choiceButtonPanel.getY() + choiceButtonPanel.getHeight()) - mainTextArea.getY() + 10;
+            g2d.fillRoundRect(bgX, bgY, bgWidth, bgHeight, 15, 15);
             g2d.dispose();
         }
     }
