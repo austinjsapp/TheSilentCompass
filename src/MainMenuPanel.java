@@ -3,35 +3,46 @@ import javax.swing.JButton;
 import java.awt.Color;
 import java.awt.Font;
 
-// This class is a JPanel that represents ONLY the main menu screen.
+/**
+ * Main menu panel with centered title and proper button layout.
+ */
 public class MainMenuPanel extends JPanel {
-    public MainMenuPanel(Game game) {
+
+    public MainMenuPanel(Game game, int screenWidth, int screenHeight) {
         setLayout(null);
 
+        double scaleX = screenWidth / 800.0;
+        double scaleY = screenHeight / 600.0;
+        double scale = Math.min(scaleX, scaleY);
+
         ImagePanel backgroundPanel = new ImagePanel(UIHelper.findImagePath("main_menu"));
-        backgroundPanel.setBounds(0, 0, 800, 600);
+        backgroundPanel.setBounds(0, 0, screenWidth, screenHeight);
 
-        // We are changing this line to call the constructor that
-        // only takes a String, which matches your ShadowLabel.java file.
+        // Centered title - SAME FONT AS BUTTONS (Serif, PLAIN)
         ShadowLabel titleLabel = new ShadowLabel("THE SILENT COMPASS");
-
         titleLabel.setForeground(Color.white);
-        titleLabel.setFont(new Font("Serif", Font.PLAIN, 62));
-        titleLabel.setBounds(50, 85, 700, 80);
+        titleLabel.setFont(new Font("Serif", Font.PLAIN, (int)(62 * scale)));
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        JButton newGameButton = UIHelper.createMenuButton("NEW GAME");
-        newGameButton.setBounds(50, 200, 300, 50);
+        int titleWidth = (int)(700 * scaleX);
+        int titleX = (screenWidth - titleWidth) / 2;
+        titleLabel.setBounds(titleX, (int)(85 * scaleY), titleWidth, (int)(80 * scaleY));
 
-        newGameButton.addActionListener(e -> {
-            game.showScreen("gameScreen");
-        });
+        // Center buttons horizontally
+        int buttonWidth = (int)(300 * scaleX);
+        int buttonHeight = (int)(50 * scaleY);
+        int buttonX = (screenWidth - buttonWidth) / 2;
 
-        JButton aboutUsButton = UIHelper.createMenuButton("ABOUT US");
-        aboutUsButton.setBounds(50, 260, 300, 50);
+        JButton newGameButton = UIHelper.createMenuButton("NEW GAME", scale);
+        newGameButton.setBounds(buttonX, (int)(220 * scaleY), buttonWidth, buttonHeight);
+        newGameButton.addActionListener(e -> game.showScreen("gameScreen"));
+
+        JButton aboutUsButton = UIHelper.createMenuButton("ABOUT US", scale);
+        aboutUsButton.setBounds(buttonX, (int)(280 * scaleY), buttonWidth, buttonHeight);
         aboutUsButton.addActionListener(e -> game.showScreen("aboutUsScreen"));
 
-        JButton exitButton = UIHelper.createMenuButton("EXIT");
-        exitButton.setBounds(50, 320, 300, 50);
+        JButton exitButton = UIHelper.createMenuButton("EXIT", scale);
+        exitButton.setBounds(buttonX, (int)(340 * scaleY), buttonWidth, buttonHeight);
         exitButton.addActionListener(e -> System.exit(0));
 
         add(titleLabel);
