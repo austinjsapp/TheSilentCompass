@@ -12,9 +12,9 @@ public class GameScreenPanel extends JPanel {
     private ImagePanel backgroundPanel;
     private JTextArea mainTextArea;
     private JButton choice1, choice2, choice3, choice4;
-    private ShadowLabel hpLabelNumber, weaponLabelName, levelXpLabel;
-    private Font gameFont;
-    private Font smallerGameFont;
+    private ShadowLabel hpLabelNumber, weaponLabelName;
+    private Font gameFont = new Font("Serif", Font.PLAIN, 26);
+    private Font smallerGameFont = new Font("Serif", Font.PLAIN, 22);
 
     private Random random;
 
@@ -25,10 +25,6 @@ public class GameScreenPanel extends JPanel {
 
     private String newWeaponFound;
     private GameLocation postWeaponChoicePosition;
-
-    private int screenWidth;
-    private int screenHeight;
-    private double scale;
 
     private enum GameLocation {
         START, DECISION_START, SEARCH_WRECKAGE, WRECKAGE_DANGER, SEARCH_WRECKAGE_BAG, AFTER_WRECKAGE_DECISION,
@@ -51,117 +47,92 @@ public class GameScreenPanel extends JPanel {
 
     private final String DEFAULT_BACKGROUND = "black_screen";
 
-    public GameScreenPanel(Game game, int screenWidth, int screenHeight) {
+    public GameScreenPanel(Game game) {
         this.game = game;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
         this.setLayout(null);
         this.random = new Random();
 
-        double scaleX = screenWidth / 800.0;
-        double scaleY = screenHeight / 600.0;
-        this.scale = Math.min(scaleX, scaleY);
+        final int HEADER_Y = 15;
+        final int COMPONENT_HEIGHT = 50;
 
-        this.gameFont = new Font("Serif", Font.PLAIN, (int)(26 * scale));
-        this.smallerGameFont = new Font("Serif", Font.PLAIN, (int)(22 * scale));
-
-        final int HEADER_Y = (int)(15 * scaleY);
-        final int COMPONENT_HEIGHT = (int)(50 * scaleY);
 
         JPanel playerPanel = new JPanel();
-        playerPanel.setBounds((int)(50 * scaleX), HEADER_Y, (int)(700 * scaleX), (int)(80 * scaleY));
+        playerPanel.setBounds(50, HEADER_Y, 700, COMPONENT_HEIGHT);
         playerPanel.setOpaque(false);
         playerPanel.setLayout(null);
 
+        // --- FIXED BOUNDS (Shifted Weapon Section Left) ---
+
         ShadowLabel hpLabel = new ShadowLabel("Health:");
-        hpLabel.setForeground(Color.white);
-        hpLabel.setFont(gameFont);
-        hpLabel.setBounds(0, 0, (int)(100 * scaleX), COMPONENT_HEIGHT);
+        hpLabel.setForeground(Color.white); hpLabel.setFont(gameFont);
+        hpLabel.setBounds(0, 0, 100, COMPONENT_HEIGHT);
         playerPanel.add(hpLabel);
 
         hpLabelNumber = new ShadowLabel("");
         hpLabelNumber.setForeground(Color.white);
         hpLabelNumber.setFont(gameFont);
-        hpLabelNumber.setBounds((int)(100 * scaleX), 0, (int)(35 * scaleX), COMPONENT_HEIGHT);
+        hpLabelNumber.setBounds(100, 0, 35, COMPONENT_HEIGHT); // Slightly wider for double digits
         playerPanel.add(hpLabelNumber);
 
         hpBonusLabel = new ShadowLabel("");
         hpBonusLabel.setForeground(new Color(150, 255, 150));
         hpBonusLabel.setFont(gameFont);
         hpBonusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        hpBonusLabel.setBounds((int)(135 * scaleX), 0, (int)(100 * scaleX), COMPONENT_HEIGHT);
+        // Added 5px gap for space (start at 135)
+        hpBonusLabel.setBounds(135, 0, 100, COMPONENT_HEIGHT);
         playerPanel.add(hpBonusLabel);
 
+        // --- WEAPON SECTION (x=280 onwards) ---
+        // Moved the start of this section from 300 to 280
+
         ShadowLabel weaponLabel = new ShadowLabel("Weapon:");
-        weaponLabel.setForeground(Color.white);
-        weaponLabel.setFont(gameFont);
-        weaponLabel.setBounds((int)(280 * scaleX), 0, (int)(100 * scaleX), COMPONENT_HEIGHT);
+        weaponLabel.setForeground(Color.white); weaponLabel.setFont(gameFont);
+        weaponLabel.setBounds(280, 0, 100, COMPONENT_HEIGHT); // Shifted left
         playerPanel.add(weaponLabel);
 
         weaponLabelName = new ShadowLabel("");
-        weaponLabelName.setForeground(Color.white);
-        weaponLabelName.setFont(gameFont);
-        weaponLabelName.setBounds((int)(380 * scaleX), 0, (int)(170 * scaleX), COMPONENT_HEIGHT);
+        weaponLabelName.setForeground(Color.white); weaponLabelName.setFont(gameFont);
+        weaponLabelName.setBounds(380, 0, 170, COMPONENT_HEIGHT); // Shifted left
         playerPanel.add(weaponLabelName);
 
         damageBonusLabel = new ShadowLabel("");
         damageBonusLabel.setForeground(new Color(255, 150, 150));
         damageBonusLabel.setFont(gameFont);
         damageBonusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        damageBonusLabel.setBounds((int)(555 * scaleX), 0, (int)(150 * scaleX), COMPONENT_HEIGHT);
+        // Added 5px gap for space (start at 555), increased width
+        damageBonusLabel.setBounds(555, 0, 150, COMPONENT_HEIGHT);
         playerPanel.add(damageBonusLabel);
+        // --- END FIXED BOUNDS ---
 
-        levelXpLabel = new ShadowLabel("");
-        levelXpLabel.setForeground(new Color(255, 215, 0)); // Gold color for level/XP
-        levelXpLabel.setFont(gameFont);
-        levelXpLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        levelXpLabel.setBounds(0, (int)(35 * scaleY), (int)(400 * scaleX), COMPONENT_HEIGHT);
-        playerPanel.add(levelXpLabel);
 
         this.player = new Player(20, "Pocket Knife");
 
+
         mainTextArea = new JTextArea("");
-        mainTextArea.setFont(new Font("Serif", Font.PLAIN, (int)(24 * scale)));
+        mainTextArea.setFont(new Font("Serif", Font.PLAIN, 24));
         mainTextArea.setForeground(Color.white);
-        mainTextArea.setOpaque(false);
-        mainTextArea.setEditable(false);
-        mainTextArea.setWrapStyleWord(true);
-        mainTextArea.setLineWrap(true);
+        mainTextArea.setOpaque(false); mainTextArea.setEditable(false);
+        mainTextArea.setWrapStyleWord(true); mainTextArea.setLineWrap(true);
         mainTextArea.setFocusable(false);
-        mainTextArea.setBounds((int)(75 * scaleX), (int)(80 * scaleY), (int)(650 * scaleX), (int)(270 * scaleY));
+        mainTextArea.setBounds(75, 80, 650, 270);
 
         JPanel choiceButtonPanel = new JPanel();
-        choiceButtonPanel.setBounds((int)(75 * scaleX), (int)(360 * scaleY), (int)(650 * scaleX), (int)(200 * scaleY));
+        choiceButtonPanel.setBounds(75, 360, 650, 200);
         choiceButtonPanel.setOpaque(false);
-        choiceButtonPanel.setLayout(new GridLayout(4, 1, 0, (int)(10 * scaleY)));
+        choiceButtonPanel.setLayout(new GridLayout(4, 1, 0, 10));
 
         ChoiceHandler choiceHandler = new ChoiceHandler();
-        choice1 = createGameButton("");
-        choice1.setActionCommand("c1");
-        choice1.addActionListener(choiceHandler);
-        choiceButtonPanel.add(choice1);
-
-        choice2 = createGameButton("");
-        choice2.setActionCommand("c2");
-        choice2.addActionListener(choiceHandler);
-        choiceButtonPanel.add(choice2);
-
-        choice3 = createGameButton("");
-        choice3.setActionCommand("c3");
-        choice3.addActionListener(choiceHandler);
-        choiceButtonPanel.add(choice3);
-
-        choice4 = createGameButton("");
-        choice4.setActionCommand("c4");
-        choice4.addActionListener(choiceHandler);
-        choiceButtonPanel.add(choice4);
+        choice1 = createGameButton(""); choice1.setActionCommand("c1"); choice1.addActionListener(choiceHandler); choiceButtonPanel.add(choice1);
+        choice2 = createGameButton(""); choice2.setActionCommand("c2"); choice2.addActionListener(choiceHandler); choiceButtonPanel.add(choice2);
+        choice3 = createGameButton(""); choice3.setActionCommand("c3"); choice3.addActionListener(choiceHandler); choiceButtonPanel.add(choice3);
+        choice4 = createGameButton(""); choice4.setActionCommand("c4"); choice4.addActionListener(choiceHandler); choiceButtonPanel.add(choice4);
 
         this.add(playerPanel);
         this.add(mainTextArea);
         this.add(choiceButtonPanel);
 
         backgroundPanel = new ImagePanel(null);
-        backgroundPanel.setBounds(0, 0, screenWidth, screenHeight);
+        backgroundPanel.setBounds(0, 0, 800, 600);
         this.add(backgroundPanel);
 
         playerSetup();
@@ -211,7 +182,7 @@ public class GameScreenPanel extends JPanel {
         button.setHorizontalAlignment(SwingConstants.CENTER);
 
         final Font originalFont = button.getFont();
-        final Font hoverFont = originalFont.deriveFont(Font.PLAIN, (float)(24 * scale));
+        final Font hoverFont = originalFont.deriveFont(Font.PLAIN, 24f);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -250,13 +221,8 @@ public class GameScreenPanel extends JPanel {
         weaponLabelName.setText(player.getWeapon());
         hpLabelNumber.setText("" + player.getHp());
         hpLabelNumber.setFont(gameFont);
-        updateLevelXpDisplay();
 
         startGameNode();
-    }
-
-    private void updateLevelXpDisplay() {
-        levelXpLabel.setText("Level: " + player.getLevel() + " | XP: " + player.getXp() + "/" + player.getXpToNextLevel());
     }
 
     private void setChoices(String text1, String text2, String text3, String text4) {
@@ -333,17 +299,15 @@ public class GameScreenPanel extends JPanel {
         } else if (chance < 70) {
             String newWeapon = "Rusty Pipe";
             if (player.getWeapon().equals(newWeapon)) {
-                player.gainXP(5);
-                mainTextArea.setText("You carefully pull a... Rusty Pipe! But you already have one.\n\n++5 XP for survival++");
+                mainTextArea.setText("You carefully pull a... Rusty Pipe! But you already have one.");
                 setChoices("Continue", "", "", "");
             } else {
                 weaponChoice(newWeapon, GameLocation.AFTER_WRECKAGE_DECISION);
             }
         } else {
-            player.gainXP(5);
+            mainTextArea.setText("You cut your hand on a sharp edge but find nothing useful.\n(You lost 2 Health)");
             player.takeDamage(2);
             hpLabelNumber.setText("" + player.getHp());
-            mainTextArea.setText("You cut your hand on a sharp edge but find nothing useful.\n(You lost 2 Health)\n\n++5 XP for survival++");
             setChoices("Continue", "", "", "");
         }
     }
@@ -351,10 +315,9 @@ public class GameScreenPanel extends JPanel {
     public void searchWreckageBag() {
         position = GameLocation.SEARCH_WRECKAGE_BAG;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
+        mainTextArea.setText("You find a soggy First Aid Kit! You use the remaining supplies.\n(Healed 5 Health)");
         player.heal(random, 5, 0);
-        player.gainXP(5);
         hpLabelNumber.setText("" + player.getHp());
-        mainTextArea.setText("You find a soggy First Aid Kit! You use the remaining supplies.\n(Healed 5 Health)\n\n++5 XP++");
         setChoices("Continue", "", "", "");
     }
 
@@ -449,8 +412,7 @@ public class GameScreenPanel extends JPanel {
         String currentDamage = player.getAttackDamageRange();
         String newDamage = player.getAttackDamageRange(newWeaponName);
 
-        player.gainXP(5); // Award XP for finding items
-        mainTextArea.setText("You found a " + newWeaponName + "!\n\n++5 XP++");
+        mainTextArea.setText("You found a " + newWeaponName + "!");
 
         setChoices("Switch to " + newWeaponName + " (Damage: " + newDamage + ")",
                 "Keep " + currentWeaponName + " (Damage: " + currentDamage + ")",
@@ -467,9 +429,8 @@ public class GameScreenPanel extends JPanel {
     public void afterSpiderFight() {
         position = GameLocation.AFTER_SPIDER_FIGHT;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        player.gainXP(5);
+        mainTextArea.setText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)");
         player.setHasCompass(true);
-        mainTextArea.setText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)\n\n++5 XP++");
         setChoices("Return to the jungle fork", "", "", "");
     }
 
@@ -492,10 +453,9 @@ public class GameScreenPanel extends JPanel {
         } else {
             int damage = random.nextInt(4) + 2;
             player.takeDamage(damage);
-            player.gainXP(10); // XP for surviving dangerous encounter
             hpLabelNumber.setText("" + player.getHp());
 
-            mainTextArea.append("\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost 2 Health)\n\n++10 XP for survival++");
+            mainTextArea.append("\nYou frantically grab a vine and pull yourself out, exhausted.\n(You lost 2 Health)");
 
             if (!player.isAlive()) {
                 lose("You pull yourself out, but the effort was too much. You die on the bank. Game Over.");
@@ -569,14 +529,12 @@ public class GameScreenPanel extends JPanel {
         int chance = random.nextInt(100);
 
         if (chance < 40 && !player.hasWhetstone()) {
-            player.gainXP(5);
+            mainTextArea.setText("You find a smooth Whetstone on the shore!\n\n(Your weapons will now do +1 minimum damage!)");
             player.setHasWhetstone(true);
-            mainTextArea.setText("You find a smooth Whetstone on the shore!\n\n(Your weapons will now do +1 minimum damage!)\n\n++5 XP++");
             setChoices("Return to the delta", "", "", "");
         } else if (chance < 70 && !player.hasToughHide()) {
-            player.gainXP(5);
+            mainTextArea.setText("You find a thick, leathery hide on the island. It looks durable.\n\n(Your Max HP has permanently increased by 5!)");
             player.setHasToughHide(true);
-            mainTextArea.setText("You find a thick, leathery hide on the island. It looks durable.\n\n(Your Max HP has permanently increased by 5!)\n\n++5 XP++");
             setChoices("Return to the delta", "", "", "");
         } else {
             mainTextArea.setText("You step onto the island and a Giant Crab bursts from the sand!");
@@ -617,9 +575,8 @@ public class GameScreenPanel extends JPanel {
         mainTextArea.setText("With the " + currentEnemy.getName() + " defeated, you continue up the rocky hill. You find a small, abandoned camp.\n");
 
         if (!player.hasPendant()) {
-            player.gainXP(5);
+            mainTextArea.append("Inside a rotted bag, you find an ornate Pendant!");
             player.setHasPendant(true);
-            mainTextArea.append("Inside a rotted bag, you find an ornate Pendant!\n\n++5 XP++");
         } else {
             mainTextArea.append("You already found the pendant. There is nothing else here.");
         }
@@ -658,7 +615,7 @@ public class GameScreenPanel extends JPanel {
     }
 
     public void afterStalkerFight() {
-        position = GameLocation.AFTER_STALKER_FIGHT;
+        position = GameLocation.AFTER_SPIDER_FIGHT;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         mainTextArea.setText("The stalker dissolves into shadows. It dropped a sharp Obsidian Dagger!");
 
@@ -676,23 +633,21 @@ public class GameScreenPanel extends JPanel {
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
 
         if (player.getWeapon().equals("Obsidian Dagger")) {
-            player.gainXP(5);
+            mainTextArea.setText("You search the crumbling building and find a pristine First Aid Kit!\n\n(Healed 10 Health)");
             player.heal(random, 10, 0);
             hpLabelNumber.setText("" + player.getHp());
-            mainTextArea.setText("You search the crumbling building and find a pristine First Aid Kit!\n\n(Healed 10 Health)\n\n++5 XP++");
         } else if (!player.hasWhetstone()) {
-            player.gainXP(5);
+            mainTextArea.setText("You search the building and find a strange, smooth Whetstone!\n\n(Your weapons will now do +1 minimum damage!)");
             player.setHasWhetstone(true);
-            mainTextArea.setText("You search the building and find a strange, smooth Whetstone!\n\n(Your weapons will now do +1 minimum damage!)\n\n++5 XP++");
         } else if (!player.hasToughHide()) {
-            player.gainXP(5);
+            mainTextArea.setText("You search the building and find a tough, leathery hide.\n\n(Your Max HP has permanently increased by 5!)");
             player.setHasToughHide(true);
-            mainTextArea.setText("You search the building and find a tough, leathery hide.\n\n(Your Max HP has permanently increased by 5!)\n\n++5 XP++");
         } else {
             mainTextArea.setText("The building is empty, save for dust and echoes.");
         }
         setChoices("Return to courtyard", "", "", "");
     }
+
 
     public void decisionFinal() {
         position = GameLocation.DECISION_FINAL;
@@ -706,6 +661,7 @@ public class GameScreenPanel extends JPanel {
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
         endingEscape();
     }
+
 
     public void fight() {
         position = GameLocation.FIGHT;
@@ -750,29 +706,8 @@ public class GameScreenPanel extends JPanel {
     public void winFight() {
         position = GameLocation.WIN_FIGHT;
         backgroundPanel.setImage(UIHelper.findImagePath(DEFAULT_BACKGROUND));
-        
-        // Award XP based on enemy difficulty (10-30 XP)
-        int xpGained = getEnemyXP(currentEnemy.getName());
-        player.gainXP(xpGained);
-        
-        mainTextArea.setText("You defeated the " + currentEnemy.getName() + "!\n\n++" + xpGained + " XP++");
+        mainTextArea.setText("You defeated the " + currentEnemy.getName() + "!");
         setChoices("Continue", "", "", "");
-    }
-
-    private int getEnemyXP(String enemyName) {
-        // Award XP based on enemy difficulty (10-30 XP)
-        if (enemyName.equals("Jungle Stalker")) {
-            return 30; // Hardest enemy
-        } else if (enemyName.equals("Jaguar")) {
-            return 25;
-        } else if (enemyName.equals("Wild Boar") || enemyName.equals("Giant Crab")) {
-            return 20;
-        } else if (enemyName.equals("Giant Snake")) {
-            return 15;
-        } else if (enemyName.equals("Large Spider")) {
-            return 10; // Easiest enemy
-        }
-        return 10; // Default
     }
 
     public void fleeResult(boolean success) {
@@ -1012,15 +947,13 @@ public class GameScreenPanel extends JPanel {
                             break;
                         case "c2":
                             if (player.hasCompass()) {
-                                player.gainXP(15);
-                                mainTextArea.setText("You check your compass... it seems to waver, pointing to the left side of the bridge. You cross carefully, avoiding the weak planks on the right!\n\n++15 XP for survival++");
+                                mainTextArea.setText("You check your compass... it seems to waver, pointing to the left side of the bridge. You cross carefully, avoiding the weak planks on the right.\nYou make it!");
                                 setChoices("Continue", "", "", "");
                                 position = GameLocation.BRIDGE_CROSS_SUCCESS;
                             } else if (random.nextInt(100) < 50) {
                                 lose("You step on a rotten plank. It snaps, and you fall into the chasm. Game Over.");
                             } else {
-                                player.gainXP(15);
-                                mainTextArea.setText("You test every plank, moving slowly. Your heart pounds. After an eternity, you reach the other side!\n\n++15 XP for survival++");
+                                mainTextArea.setText("You test every plank, moving slowly. Your heart pounds. After an eternity, you reach the other side!");
                                 setChoices("Continue", "", "", "");
                                 position = GameLocation.BRIDGE_CROSS_SUCCESS;
                             }
@@ -1100,17 +1033,11 @@ public class GameScreenPanel extends JPanel {
         private boolean hasCompass;
         private boolean hasWhetstone;
         private boolean hasToughHide;
-        private int level;
-        private int xp;
-        private int xpToNextLevel;
 
         public Player(int maxHp, String startWeapon) {
             this.baseMaxHp = maxHp;
             this.maxHp = baseMaxHp;
             this.weapon = startWeapon;
-            this.level = 1;
-            this.xp = 0;
-            this.xpToNextLevel = 50;
 
             reset(maxHp, startWeapon);
         }
@@ -1124,9 +1051,6 @@ public class GameScreenPanel extends JPanel {
             this.hasCompass = false;
             this.hasWhetstone = false;
             this.hasToughHide = false;
-            this.level = 1;
-            this.xp = 0;
-            this.xpToNextLevel = 50;
 
             hpBonusLabel.setText("");
             damageBonusLabel.setText("");
@@ -1149,50 +1073,19 @@ public class GameScreenPanel extends JPanel {
             return this.hp - oldHp;
         }
 
-        public void gainXP(int amount) {
-            this.xp += amount;
-            while (this.xp >= this.xpToNextLevel) {
-                levelUp();
-            }
-            updateLevelXpDisplay();
-        }
-
-        private void levelUp() {
-            this.xp -= this.xpToNextLevel;
-            this.level++;
-            
-            // Increase stats
-            this.baseMaxHp += 5;
-            this.maxHp = this.baseMaxHp;
-            if (this.hasToughHide) {
-                this.maxHp += 5;
-            }
-            this.hp = this.maxHp; // Full health restoration
-            
-            // Update XP requirement (constant 50 per level)
-            this.xpToNextLevel = 50;
-            
-            // Show level up message
-            mainTextArea.append("\n\n*** LEVEL UP! You are now Level " + this.level + "! ***");
-            mainTextArea.append("\n+5 Max HP | +1 Damage | HP Fully Restored!");
-            
-            hpLabelNumber.setText("" + this.hp);
-        }
-
         public int getAttackDamage(Random rand) {
             int minDamageBonus = hasWhetstone ? 1 : 0;
-            int levelBonus = (this.level - 1); // +1 damage per level above 1
 
             if (weapon.equals("Machete")) {
-                return rand.nextInt(8) + 3 + minDamageBonus + levelBonus;
+                return rand.nextInt(8) + 3 + minDamageBonus;
             } else if (weapon.equals("Obsidian Dagger")) {
-                return rand.nextInt(5) + 4 + minDamageBonus + levelBonus;
+                return rand.nextInt(5) + 4 + minDamageBonus;
             } else if (weapon.equals("Makeshift Spear")) {
-                return rand.nextInt(6) + 2 + minDamageBonus + levelBonus;
+                return rand.nextInt(6) + 2 + minDamageBonus;
             } else if (weapon.equals("Rusty Pipe")) {
-                return rand.nextInt(5) + 2 + minDamageBonus + levelBonus;
-            } else {
-                return rand.nextInt(4) + 1 + minDamageBonus + levelBonus;
+                return rand.nextInt(5) + 2 + minDamageBonus;
+            } else { // Pocket Knife
+                return rand.nextInt(4) + 1 + minDamageBonus;
             }
         }
 
@@ -1227,9 +1120,6 @@ public class GameScreenPanel extends JPanel {
         public void setHasPendant(boolean has) { this.hasPendant = has; }
         public boolean hasCompass() { return this.hasCompass; }
         public void setHasCompass(boolean has) { this.hasCompass = has; }
-        public int getLevel() { return this.level; }
-        public int getXp() { return this.xp; }
-        public int getXpToNextLevel() { return this.xpToNextLevel; }
 
         public boolean hasWhetstone() { return this.hasWhetstone; }
         public void setHasWhetstone(boolean has) {
