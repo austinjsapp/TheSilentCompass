@@ -88,7 +88,7 @@ public class Game {
         setupMusicManager();
 
         JPanel mainMenuScreen = new MainMenuPanel(this, screenWidth, screenHeight);
-        JPanel gameScreen = new GameScreenPanel(this, screenWidth, screenHeight);
+        JPanel gameScreen = new GameScreenPanel(this);
         JPanel aboutUsScreen = new AboutUsScreenPanel(this, screenWidth, screenHeight);
         JPanel loadingScreen = new LoadingScreenPanel(this, screenWidth, screenHeight);
         settingsPanel = new SettingsPanel(this, screenWidth, screenHeight);
