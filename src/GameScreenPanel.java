@@ -51,10 +51,10 @@ public class GameScreenPanel extends JPanel {
 
     private final String DEFAULT_BACKGROUND = "black_screen";
 
-    public GameScreenPanel(Game game, int screenWidth, int screenHeight) {
+    public GameScreenPanel(Game game) {
         this.game = game;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
+        this.screenWidth = game.getScreenWidth();
+        this.screenHeight = game.getScreenHeight();
         this.setLayout(null);
         this.random = new Random();
 
