@@ -7,13 +7,11 @@ import java.awt.FontMetrics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-// A helper class with static methods for creating UI elements and finding files.
 public class UIHelper {
 
-    // Create a single instance of SoundManager
     private static final SoundManager soundManager = new SoundManager();
 
-    // Helper method to find images reliably
+    // Finds images in the resources folder
     public static String findImagePath(String keyword) {
         String projectPath = System.getProperty("user.dir");
         File resourcesDir = new File(projectPath, "resources");
@@ -31,7 +29,7 @@ public class UIHelper {
         return null;
     }
 
-    // Helper method to find music files reliably
+    // Finds music in the resources/music folder
     public static String findMusicPath(String keyword) {
         String projectPath = System.getProperty("user.dir");
         File resourcesDir = new File(projectPath, "resources/music");
@@ -49,7 +47,7 @@ public class UIHelper {
         return null;
     }
 
-    // A method to find sound effects
+    // Finds sfx in the resources/sfx folder
     public static String findSfxPath(String keyword) {
         String projectPath = System.getProperty("user.dir");
         File resourcesDir = new File(projectPath, "resources/sfx");
@@ -67,34 +65,34 @@ public class UIHelper {
         return null;
     }
 
-    /**
-     * Finds and plays a sound effect file from the 'sfx' folder.
-     * @param keyword The keyword in the SFX file name (e.g., "button_hover_sfx")
-     */
     public static void playSound(String keyword) {
         String sfxPath = findSfxPath(keyword);
         if (sfxPath != null) {
             soundManager.playSfx(sfxPath);
         }
     }
-    // --- END NEW METHOD ---
 
-
-    // Helper method to create a styled menu button
+    // Creates the buttons for the menu with the hard shadow
     public static JButton createMenuButton(String text) {
 
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
-                // (Custom shadow painting code)
                 Graphics2D g2 = (Graphics2D) g.create();
+
+                // Anti-aliasing for smooth text
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
                 g2.setFont(this.getFont());
                 FontMetrics fm = g2.getFontMetrics();
+
                 int stringWidth = fm.stringWidth(this.getText());
                 int componentWidth = this.getWidth();
+
                 int x;
                 int alignment = this.getHorizontalAlignment();
+
+                // Align text properly
                 if (alignment == SwingConstants.CENTER) {
                     x = (componentWidth - stringWidth) / 2;
                 } else if (alignment == SwingConstants.RIGHT) {
@@ -102,17 +100,24 @@ public class UIHelper {
                 } else {
                     x = 0;
                 }
+
                 int y = (this.getHeight() - fm.getHeight()) / 2 + fm.getAscent();
-                g2.setColor(new Color(0, 0, 0, 150));
-                g2.drawString(this.getText(), x + 2, y + 2); // Using 2px offset
+
+                // --- SHADOW (BEHIND) ---
+                // Changed to solid black for the Minecraft hard shadow style
+                g2.setColor(Color.black);
+                g2.drawString(this.getText(), x + 2, y + 2);
+
+                // --- TEXT (FRONT) ---
                 g2.setColor(this.getForeground());
                 g2.drawString(this.getText(), x, y);
+
                 g2.dispose();
             }
         };
 
         button.setForeground(Color.white);
-        button.setFont(new Font("Serif", Font.PLAIN, 44)); // Larger font
+        button.setFont(new Font("Serif", Font.PLAIN, 44));
         button.setOpaque(false);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
@@ -120,7 +125,7 @@ public class UIHelper {
         button.setHorizontalAlignment(SwingConstants.LEFT);
 
         final Font originalFont = button.getFont();
-        final Font hoverFont = originalFont.deriveFont(Font.PLAIN, 48f); // Larger hover font
+        final Font hoverFont = originalFont.deriveFont(Font.PLAIN, 48f);
 
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -139,7 +144,6 @@ public class UIHelper {
                 playSound("button_press_sfx");
             }
         });
-        // --- END OF MOUSE LISTENER ---
 
         return button;
     }

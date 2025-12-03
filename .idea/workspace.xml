@@ -4,16 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling">
-      <change afterPath="$PROJECT_DIR$/resources/cutscene1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/cutscene2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/cutscene3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/cutscene4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/CutscenePanel.java" afterDir="false" />
+    <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="Fixed resolution, added cutscene, and updated story hints">
+      <change afterPath="$PROJECT_DIR$/resources/about_us_background.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GameLogic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameLogic.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainMenuPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainMenuPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/about_us_background.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ShadowLabel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ShadowLabel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UIHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/UIHelper.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -234,7 +231,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764703613566</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Fixed resolution, added cutscene, and updated story hints">
+      <option name="closed" value="true" />
+      <created>1764747577378</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1764747577378</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -247,7 +252,8 @@
     <MESSAGE value="commit3" />
     <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/AboutUsScreenPanel.java&#10;#&#9;src/Game.java&#10;#&#9;src/LoadingScreenPanel.java&#10;#&#9;src/MainMenuPanel.java&#10;#&#9;src/SoundManager.java&#10;#&#9;src/UIHelper.java" />
     <MESSAGE value="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling" />
-    <option name="LAST_COMMIT_MESSAGE" value="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling" />
+    <MESSAGE value="Fixed resolution, added cutscene, and updated story hints" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed resolution, added cutscene, and updated story hints" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
