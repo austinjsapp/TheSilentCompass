@@ -3,7 +3,6 @@ import javax.swing.JButton;
 import java.awt.Color;
 import java.awt.Font;
 
-// This class is a JPanel that represents ONLY the main menu screen.
 public class MainMenuPanel extends JPanel {
     public MainMenuPanel(Game game) {
         setLayout(null);
@@ -11,8 +10,6 @@ public class MainMenuPanel extends JPanel {
         ImagePanel backgroundPanel = new ImagePanel(UIHelper.findImagePath("main_menu"));
         backgroundPanel.setBounds(0, 0, 800, 600);
 
-        // We are changing this line to call the constructor that
-        // only takes a String, which matches your ShadowLabel.java file.
         ShadowLabel titleLabel = new ShadowLabel("THE SILENT COMPASS");
 
         titleLabel.setForeground(Color.white);
@@ -22,8 +19,9 @@ public class MainMenuPanel extends JPanel {
         JButton newGameButton = UIHelper.createMenuButton("NEW GAME");
         newGameButton.setBounds(50, 200, 300, 50);
 
+        // CHANGE IS HERE: Point to "cutscene" instead of "gameScreen"
         newGameButton.addActionListener(e -> {
-            game.showScreen("gameScreen");
+            game.showScreen("cutscene");
         });
 
         JButton aboutUsButton = UIHelper.createMenuButton("ABOUT US");

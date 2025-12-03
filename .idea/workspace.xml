@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling">
+      <change afterPath="$PROJECT_DIR$/resources/cutscene1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/cutscene2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/cutscene3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/cutscene4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/CutscenePanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameLogic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameLogic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainMenuPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainMenuPanel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -218,7 +226,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763010780550</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling">
+      <option name="closed" value="true" />
+      <created>1764703613566</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1764703613566</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

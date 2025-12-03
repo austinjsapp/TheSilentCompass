@@ -40,14 +40,20 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_START);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You stand up and check your surroundings. What is your first move?");
-        uiCallback.setChoices("Search wreckage for supplies", "Follow the riverbank", "Head into the jungle", "");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Search wreckage (Supplies?)",
+                "Follow river (Civilization?)",
+                "Enter jungle (Shortcut?)",
+                ""
+        );
     }
 
     public void searchWreckage() {
         state.setPosition(GameLocation.SEARCH_WRECKAGE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("The wreckage is unstable. You see a glint of metal under a heavy plank and a mostly-dry bag.");
-        uiCallback.setChoices("Try for the metal (Dangerous)", "Check the dry bag", "Leave it alone", "");
+        uiCallback.setChoices("Try for the metal (Risk Injury)", "Check the dry bag (Safe)", "Leave it alone", "");
     }
 
     public void wreckageDanger() {
@@ -96,7 +102,8 @@ public class GameLogic {
         state.setPosition(GameLocation.AFTER_WRECKAGE_DECISION);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You step away from the wreckage and survey the area again.");
-        uiCallback.setChoices("Follow the riverbank", "Head into the jungle", "", "");
+        // UPDATED HINTS
+        uiCallback.setChoices("Follow river (Civilization?)", "Head into jungle (Shortcut?)", "", "");
     }
 
     public void riverPath() {
@@ -110,21 +117,34 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_RIVER);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You walk for an hour. The riverbank is muddy and difficult.\nYou hear a loud snorting noise in the bushes nearby.");
-        uiCallback.setChoices("Investigate the noise (Boar)", "Continue along riverbank", "Wander off into the jungle", "Find a place to rest");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Investigate noise (Danger/Food?)",
+                "Continue river (Civilization?)",
+                "Wander into jungle (Unknown)",
+                "Find a place to rest (Heal)"
+        );
     }
 
     public void riverPathContinued() {
         state.setPosition(GameLocation.RIVER_PATH_CONTINUED);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You continue along the main river. The bank is muddy. You see a small tributary breaking off to the left.");
-        uiCallback.setChoices("Follow main river (Snake)", "Explore the tributary", "Go back to the jungle path", "");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Follow main river (Snake Danger)",
+                "Explore tributary (Hidden path?)",
+                "Return to jungle",
+                ""
+        );
     }
 
     public void waterfallCave() {
         state.setPosition(GameLocation.WATERFALL_CAVE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("The tributary leads to a small, beautiful waterfall. You notice a dark opening behind the curtain of water.");
-        uiCallback.setChoices("Investigate the cave", "Return to the river", "", "");
+        // UPDATED HINTS
+        uiCallback.setChoices("Enter cave (Shiny object inside?)", "Return to river", "", "");
     }
 
     public void insideCave() {
@@ -153,7 +173,7 @@ public class GameLogic {
         state.setPosition(GameLocation.JUNGLE_PATH);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You push your way into the dense, dark jungle. The sounds of insects and birds are deafening. You spot a long, sturdy-looking branch.");
-        uiCallback.setChoices("Take the branch", "Leave it and continue", "", "");
+        uiCallback.setChoices("Take the branch (Weapon)", "Leave it and continue", "", "");
     }
 
     public void findSpear() {
@@ -171,7 +191,13 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_JUNGLE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You find a fork in the faint animal trail you've been following.");
-        uiCallback.setChoices("Go left, towards a rocky hill (Jaguar)", "Go right, towards a swamp (Quicksand)", "Follow a strange noise (Giant Tree)", "Find a place to rest");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Go left (Jaguar Danger!)",
+                "Go right (Swamp Hazard)",
+                "Follow noise (Giant Tree/Loot?)",
+                "Rest (Heal)"
+        );
     }
 
     public void weaponChoice(String newWeaponName, GameLocation nextPosition) {
@@ -202,7 +228,7 @@ public class GameLogic {
         uiCallback.updateColoredText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)", COLOR_SPECIAL);
         state.getPlayer().setHasCompass(true);
         state.getPlayer().applyInspired(3);
-        uiCallback.setChoices("Return to the jungle fork", "", "", "");
+        uiCallback.setChoices("Return to jungle fork", "", "", "");
     }
 
     public void findKit3() {
@@ -281,14 +307,21 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_RIVER_DAMAGE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("After the fight with the snake, you are tired. The path ahead looks long.");
-        uiCallback.setChoices("Continue into the murky delta", "Go back to the jungle path", "", "");
+        // UPDATED HINTS
+        uiCallback.setChoices("Continue to delta (Civilization?)", "Go back to jungle", "", "");
     }
 
     public void murkyDelta() {
         state.setPosition(GameLocation.MURKY_DELTA);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("The river splits into a maze of small, murky channels. You see a glint on a small island, but also hear a strange clicking sound from the mangroves.");
-        uiCallback.setChoices("Try to reach the island (Risky)", "Follow the clicking sound (Crab)", "Try to find the main channel", "");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Swim to island (Movement seen)",
+                "Follow clicking (Danger)",
+                "Find main channel (Exit?)",
+                ""
+        );
     }
 
     public void deltaIsland() {
@@ -369,7 +402,13 @@ public class GameLogic {
         state.setPosition(GameLocation.ANCIENT_RUINS);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You stand in a vine-choked courtyard. There is a dark stairway leading down, a large stone building, and a path continuing up the hill.");
-        uiCallback.setChoices("Explore the dark stairway (Stalker)", "Search the stone building", "Follow the path up the hill", "");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Explore stairway (Stalker Danger)",
+                "Search building (Supplies?)",
+                "Follow path up (Exit)",
+                ""
+        );
     }
 
     public void ruinsCrypt() {
@@ -430,7 +469,13 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_FINAL);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You've been walking for what feels like days. You are weak and tired.\nYou reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a chasm.");
-        uiCallback.setChoices("Head towards the smoke", "Try to cross the rope bridge (50% Fail)", "Give up and stay here", "");
+        // UPDATED HINTS
+        uiCallback.setChoices(
+                "Head to smoke (Rescue?)",
+                "Cross bridge (Requires Compass/Luck)",
+                "Give up",
+                ""
+        );
     }
 
     // Combat methods with combo, status effects, and colors

@@ -8,9 +8,11 @@ import java.util.Random;
 import javax.swing.JLayeredPane;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
-import java.awt.Image; // <-- Import for scaling images
+import java.awt.Image;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
 
-// This is the main controller/director for our entire application.
 public class Game {
 
     JFrame window;
@@ -28,17 +30,23 @@ public class Game {
     private String currentMusicPath = "";
     private Random random = new Random();
 
+    // 1. Add reference to CutscenePanel
+    private CutscenePanel cutscenePanel;
+
     public static void main(String[] args) {
         new Game();
     }
 
     public Game() {
         window = new JFrame("The Silent Compass");
-        window.setSize(800, 600);
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        window.getContentPane().setBackground(Color.BLACK);
+        window.setLayout(new GridBagLayout());
+
         layeredPane = new JLayeredPane();
-        layeredPane.setBounds(0, 0, 800, 600);
+        layeredPane.setPreferredSize(new Dimension(800, 600));
         window.add(layeredPane);
 
         cardLayout = new CardLayout();
@@ -46,33 +54,20 @@ public class Game {
         mainPanel.setBounds(0, 0, 800, 600);
         layeredPane.add(mainPanel, JLayeredPane.DEFAULT_LAYER);
 
-
-        // Define the button size
+        // --- Icons ---
         int iconSize = 50;
-
-        // Load the *original* images first
         ImageIcon originalUnmuteIcon = new ImageIcon(UIHelper.findImagePath("musiciconunmuted"));
         ImageIcon originalMuteIcon = new ImageIcon(UIHelper.findImagePath("musiciconmuted"));
 
-        // Get the 'Image' object from the icon, scale it, and make a new icon
         Image scaledUnmuteImg = originalUnmuteIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
-
-        // It was 'originalMMuteIcon', now it's 'originalMuteIcon'
         Image scaledMuteImg = originalMuteIcon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
 
-        // Create the final, scaled icons
         unmuteIcon = new ImageIcon(scaledUnmuteImg);
         muteIcon = new ImageIcon(scaledMuteImg);
 
         muteButton = new JButton();
-        muteButton.setIcon(unmuteIcon); // Use the new *scaled* icon
-
-
-        // X = 720 (800 - 50 - 30 for safety/border)
-        // Y = 500 (600 - 50 - 50 for safety/border)
+        muteButton.setIcon(unmuteIcon);
         muteButton.setBounds(720, 500, iconSize, iconSize);
-
-        // Style the button
         muteButton.setOpaque(false);
         muteButton.setContentAreaFilled(false);
         muteButton.setBorderPainted(false);
@@ -103,12 +98,17 @@ public class Game {
         JPanel gameScreen = new GameScreenPanel(this);
         JPanel aboutUsScreen = new AboutUsScreenPanel(this);
         JPanel loadingScreen = new LoadingScreenPanel(this);
-        // --- End Panel Creation ---
+
+        // 2. Initialize CutscenePanel
+        cutscenePanel = new CutscenePanel(this);
 
         mainPanel.add(mainMenuScreen, "mainMenu");
         mainPanel.add(gameScreen, "gameScreen");
         mainPanel.add(aboutUsScreen, "aboutUsScreen");
         mainPanel.add(loadingScreen, "loadingScreen");
+
+        // 3. Add CutscenePanel to CardLayout
+        mainPanel.add(cutscenePanel, "cutscene");
 
         currentMusicPath = musicMap.get("mainMenu");
         if (currentMusicPath != null) {
@@ -120,37 +120,55 @@ public class Game {
     }
 
     public void showScreen(String targetScreenName) {
-
         cardLayout.show(mainPanel, "loadingScreen");
         muteButton.setVisible(false);
 
         String newMusicPath = musicMap.get(targetScreenName);
         boolean musicNeedsToChange = (newMusicPath != null && !newMusicPath.equals(currentMusicPath));
 
+        // Created a helper to run after the delay/fade is done
+        Runnable onTransitionComplete = () -> {
+            cardLayout.show(mainPanel, targetScreenName);
+            muteButton.setVisible(true);
+
+            // If we just switched to the cutscene, start the timer logic!
+            if (targetScreenName.equals("cutscene")) {
+                cutscenePanel.startCutscene();
+                muteButton.setVisible(false);
+            }
+        };
+
         if (musicNeedsToChange) {
             currentMusicPath = newMusicPath;
 
             musicManager.fadeOut(() -> {
                 musicManager.fadeIn(newMusicPath);
-
                 if (isMuted) {
                     musicManager.setMuted(true);
                 }
-
-                cardLayout.show(mainPanel, targetScreenName);
-                muteButton.setVisible(true);
+                onTransitionComplete.run();
             });
 
         } else {
-            // Use the longer, randomized delay
             int loadingDelay = random.nextInt(1500) + 1500;
-
             Timer timer = new Timer(loadingDelay, e -> {
-                cardLayout.show(mainPanel, targetScreenName);
-                muteButton.setVisible(true);
+                onTransitionComplete.run();
             });
             timer.setRepeats(false);
             timer.start();
+        }
+    }
+
+    // 4. Helper for CutscenePanel to call when finished
+    public void showGameScreenDirectly() {
+        cardLayout.show(mainPanel, "gameScreen");
+        muteButton.setVisible(true);
+
+        String gameMusic = musicMap.get("gameScreen");
+        if (gameMusic != null && !gameMusic.equals(currentMusicPath)) {
+            // FIXED: Changed playMusic() to fadeIn()
+            musicManager.fadeIn(gameMusic);
+            currentMusicPath = gameMusic;
         }
     }
 }
