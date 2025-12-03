@@ -6,21 +6,25 @@ public class GameLogic {
     private Random random;
     private GameUICallback uiCallback;
 
-    // NEW: Color constants for visual feedback
-    private static final Color COLOR_GOOD = new Color(100, 255, 100); // Bright green
-    private static final Color COLOR_BAD = new Color(255, 100, 100); // Red
-    private static final Color COLOR_SPECIAL = new Color(100, 200, 255); // Cyan
-    private static final Color COLOR_WARNING = new Color(255, 200, 100); // Yellow/Orange
+    // Color constants
+    private static final Color COLOR_GOOD = new Color(100, 255, 100);
+    private static final Color COLOR_BAD = new Color(255, 100, 100);
+    private static final Color COLOR_SPECIAL = new Color(100, 200, 255);
+    private static final Color COLOR_WARNING = new Color(255, 200, 100);
 
     public interface GameUICallback {
         void updateText(String text);
-        void updateColoredText(String text, Color color); // NEW
+        void updateColoredText(String text, Color color);
         void setChoices(String c1, String c2, String c3, String c4);
         void updatePlayerHP(int hp);
         void updatePlayerWeapon(String weapon);
         void setBackground(String imageName);
         void showHPBonus(String text);
         void showDamageBonus(String text);
+
+        // NEW: Combat Visual Methods
+        void setCombatMode(boolean isActive);
+        void setEnemyImage(String enemyName);
     }
 
     public GameLogic(GameState state, Random random, GameUICallback callback) {
@@ -29,7 +33,13 @@ public class GameLogic {
         this.uiCallback = callback;
     }
 
+    // --- HELPER TO TURN OFF FIGHT PICTURES ---
+    private void stopCombatVisuals() {
+        uiCallback.setCombatMode(false);
+    }
+
     public void startGameNode() {
+        stopCombatVisuals(); // Ensure visuals are off at start
         state.setPosition(GameLocation.START);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You wake up beside your shattered canoe on a river bank.\nThe dense jungle stretches before you. Survival is key.");
@@ -40,7 +50,6 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_START);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You stand up and check your surroundings. What is your first move?");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Search wreckage (Supplies?)",
                 "Follow river (Civilization?)",
@@ -102,7 +111,6 @@ public class GameLogic {
         state.setPosition(GameLocation.AFTER_WRECKAGE_DECISION);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You step away from the wreckage and survey the area again.");
-        // UPDATED HINTS
         uiCallback.setChoices("Follow river (Civilization?)", "Head into jungle (Shortcut?)", "", "");
     }
 
@@ -117,7 +125,6 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_RIVER);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You walk for an hour. The riverbank is muddy and difficult.\nYou hear a loud snorting noise in the bushes nearby.");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Investigate noise (Danger/Food?)",
                 "Continue river (Civilization?)",
@@ -127,10 +134,10 @@ public class GameLogic {
     }
 
     public void riverPathContinued() {
+        stopCombatVisuals(); // Safety check to turn off images
         state.setPosition(GameLocation.RIVER_PATH_CONTINUED);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You continue along the main river. The bank is muddy. You see a small tributary breaking off to the left.");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Follow main river (Snake Danger)",
                 "Explore tributary (Hidden path?)",
@@ -143,7 +150,6 @@ public class GameLogic {
         state.setPosition(GameLocation.WATERFALL_CAVE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("The tributary leads to a small, beautiful waterfall. You notice a dark opening behind the curtain of water.");
-        // UPDATED HINTS
         uiCallback.setChoices("Enter cave (Shiny object inside?)", "Return to river", "", "");
     }
 
@@ -170,6 +176,7 @@ public class GameLogic {
     }
 
     public void junglePath() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.JUNGLE_PATH);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You push your way into the dense, dark jungle. The sounds of insects and birds are deafening. You spot a long, sturdy-looking branch.");
@@ -191,7 +198,6 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_JUNGLE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You find a fork in the faint animal trail you've been following.");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Go left (Jaguar Danger!)",
                 "Go right (Swamp Hazard)",
@@ -223,6 +229,7 @@ public class GameLogic {
     }
 
     public void afterSpiderFight() {
+        stopCombatVisuals(); // Fight over
         state.setPosition(GameLocation.AFTER_SPIDER_FIGHT);
         uiCallback.setBackground("black_screen");
         uiCallback.updateColoredText("The spider is defeated. You find a small, tough pouch in its web... It contains an old Compass!\n\n(You found a Compass)", COLOR_SPECIAL);
@@ -258,13 +265,16 @@ public class GameLogic {
         }
     }
 
-    // Enemy encounters
+    // --- ENEMY ENCOUNTERS ---
+
     public void boarEncounter() {
         state.setPosition(GameLocation.ENEMY_ENCOUNTER);
         uiCallback.setBackground("black_screen");
-
         state.setCurrentEnemy(new Enemy("Wild Boar", 16 + random.nextInt(5)));
         state.setPostCombatPosition(GameLocation.RIVER_PATH_CONTINUED);
+
+        // NEW: Tell UI which enemy image to load
+        uiCallback.setEnemyImage(state.getCurrentEnemy().getName());
 
         uiCallback.updateText("You push aside the bushes and a " + state.getCurrentEnemy().getName() + " charges at you!");
         uiCallback.setChoices("Fight", "Try to flee", "", "");
@@ -273,9 +283,10 @@ public class GameLogic {
     public void riverEncounter() {
         state.setPosition(GameLocation.ENEMY_ENCOUNTER);
         uiCallback.setBackground("black_screen");
-
         state.setCurrentEnemy(new Enemy("Giant Snake", 12 + random.nextInt(5)));
         state.setPostCombatPosition(GameLocation.DECISION_RIVER_DAMAGE);
+
+        uiCallback.setEnemyImage(state.getCurrentEnemy().getName());
 
         uiCallback.updateText("A " + state.getCurrentEnemy().getName() + " slithers out from the mud! It looks aggressive.");
         uiCallback.setChoices("Fight", "Try to flee", "", "");
@@ -284,9 +295,10 @@ public class GameLogic {
     public void jungleEncounter() {
         state.setPosition(GameLocation.ENEMY_ENCOUNTER);
         uiCallback.setBackground("black_screen");
-
         state.setCurrentEnemy(new Enemy("Jaguar", 20 + random.nextInt(6)));
         state.setPostCombatPosition(GameLocation.FIND_PENDANT);
+
+        uiCallback.setEnemyImage(state.getCurrentEnemy().getName());
 
         uiCallback.updateText("You round a boulder and startle a " + state.getCurrentEnemy().getName() + "! It prepares to pounce!");
         uiCallback.setChoices("Fight", "Try to flee", "", "");
@@ -295,9 +307,10 @@ public class GameLogic {
     public void spiderEncounter() {
         state.setPosition(GameLocation.ENEMY_ENCOUNTER);
         uiCallback.setBackground("black_screen");
-
         state.setCurrentEnemy(new Enemy("Large Spider", 8 + random.nextInt(3)));
         state.setPostCombatPosition(GameLocation.AFTER_SPIDER_FIGHT);
+
+        uiCallback.setEnemyImage(state.getCurrentEnemy().getName());
 
         uiCallback.updateText("You ready your " + state.getPlayer().getWeapon() + " against the " + state.getCurrentEnemy().getName() + "!");
         uiCallback.setChoices("Fight", "Try to flee", "", "");
@@ -307,15 +320,14 @@ public class GameLogic {
         state.setPosition(GameLocation.DECISION_RIVER_DAMAGE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("After the fight with the snake, you are tired. The path ahead looks long.");
-        // UPDATED HINTS
         uiCallback.setChoices("Continue to delta (Civilization?)", "Go back to jungle", "", "");
     }
 
     public void murkyDelta() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.MURKY_DELTA);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("The river splits into a maze of small, murky channels. You see a glint on a small island, but also hear a strange clicking sound from the mangroves.");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Swim to island (Movement seen)",
                 "Follow clicking (Danger)",
@@ -369,11 +381,15 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
         state.setCurrentEnemy(new Enemy("Giant Crab", 15 + random.nextInt(4)));
         state.setPostCombatPosition(GameLocation.MURKY_DELTA);
+
+        uiCallback.setEnemyImage(state.getCurrentEnemy().getName());
+
         uiCallback.updateText("A " + state.getCurrentEnemy().getName() + " emerges, snapping its huge claws!");
         uiCallback.setChoices("Fight", "Try to flee", "", "");
     }
 
     public void findPendant() {
+        stopCombatVisuals(); // Clean up if coming from fight
         state.setPosition(GameLocation.FIND_PENDANT);
         uiCallback.setBackground("black_screen");
         String text = "With the " + state.getCurrentEnemy().getName() + " defeated, you continue up the rocky hill. You find a small, abandoned camp.\n";
@@ -399,10 +415,10 @@ public class GameLogic {
     }
 
     public void ancientRuins() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.ANCIENT_RUINS);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You stand in a vine-choked courtyard. There is a dark stairway leading down, a large stone building, and a path continuing up the hill.");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Explore stairway (Stalker Danger)",
                 "Search building (Supplies?)",
@@ -423,11 +439,15 @@ public class GameLogic {
         uiCallback.setBackground("black_screen");
         state.setCurrentEnemy(new Enemy("Jungle Stalker", 25 + random.nextInt(6)));
         state.setPostCombatPosition(GameLocation.AFTER_STALKER_FIGHT);
+
+        uiCallback.setEnemyImage(state.getCurrentEnemy().getName());
+
         uiCallback.updateText("The " + state.getCurrentEnemy().getName() + " lunges from the shadows!");
         uiCallback.setChoices("Fight", "Try to flee", "", "");
     }
 
     public void afterStalkerFight() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.AFTER_STALKER_FIGHT);
         uiCallback.setBackground("black_screen");
         String text = "The stalker dissolves into shadows. It dropped a sharp Obsidian Dagger!";
@@ -466,10 +486,10 @@ public class GameLogic {
     }
 
     public void decisionFinal() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.DECISION_FINAL);
         uiCallback.setBackground("black_screen");
         uiCallback.updateText("You've been walking for what feels like days. You are weak and tired.\nYou reach a high ridge and see smoke in the distance, but also a dilapidated rope bridge across a chasm.");
-        // UPDATED HINTS
         uiCallback.setChoices(
                 "Head to smoke (Rescue?)",
                 "Cross bridge (Requires Compass/Luck)",
@@ -478,10 +498,13 @@ public class GameLogic {
         );
     }
 
-    // Combat methods with combo, status effects, and colors
+    // --- COMBAT CORE ---
     public void fight() {
         state.setPosition(GameLocation.FIGHT);
         uiCallback.setBackground("black_screen");
+
+        // NEW: Turn on combat pictures!
+        uiCallback.setCombatMode(true);
 
         StringBuilder fightText = new StringBuilder();
         fightText.append(state.getCurrentEnemy().getName()).append(" Health: ").append(state.getCurrentEnemy().getHp());
@@ -595,6 +618,8 @@ public class GameLogic {
     }
 
     public void winFight() {
+        // NEW: Turn off visuals
+        stopCombatVisuals();
         state.setPosition(GameLocation.WIN_FIGHT);
         uiCallback.setBackground("black_screen");
 
@@ -616,9 +641,11 @@ public class GameLogic {
         state.getPlayer().resetCombo();
 
         if (success) {
+            stopCombatVisuals(); // Escape successful, turn off visuals
             uiCallback.updateColoredText("You managed to escape!", COLOR_GOOD);
             uiCallback.setChoices("Continue", "", "", "");
         } else {
+            // Still in fight, keep visuals on (no stopCombatVisuals here)
             if (state.getPlayer().canDodge(random)) {
                 uiCallback.updateColoredText("You couldn't get away, but you dodge the " + state.getCurrentEnemy().getName() + "'s attack as you retreat!", COLOR_GOOD);
                 uiCallback.setChoices("Continue", "", "", "");
@@ -635,8 +662,8 @@ public class GameLogic {
         }
     }
 
-    // Endings
     public void lose(String message) {
+        stopCombatVisuals();
         state.setPosition(GameLocation.LOSE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateColoredText(message + "\n\nGAME OVER", COLOR_BAD);
@@ -644,6 +671,7 @@ public class GameLogic {
     }
 
     public void endingEscape() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.ENDING_ESCAPE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateColoredText("On the other side, you find a clear trail that leads you out of the jungle to a small village.\n\n(Escape Ending)", COLOR_GOOD);
@@ -651,6 +679,7 @@ public class GameLogic {
     }
 
     public void endingRescue() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.ENDING_RESCUE);
         uiCallback.setBackground("black_screen");
         uiCallback.updateColoredText("You head towards the smoke. A search party finds you! They were looking for you.\nYour Pendant seems to glow as they approach.\n\n(Rescue Ending)", COLOR_SPECIAL);
@@ -658,6 +687,7 @@ public class GameLogic {
     }
 
     public void endingLost() {
+        stopCombatVisuals();
         state.setPosition(GameLocation.ENDING_LOST);
         uiCallback.setBackground("black_screen");
         uiCallback.updateColoredText("You collapse, too weak to go on. The jungle... it wins.\nYou are never seen again.\n\n(Lost Forever Ending)", COLOR_BAD);

@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="Fixed resolution, added cutscene, and updated story hints">
-      <change afterPath="$PROJECT_DIR$/resources/about_us_background.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/giant_crab.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/giant_snake.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/jaguar.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/jungle_stalker.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/large_spider.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/wild_boar.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/about_us_background.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/AboutUsScreenPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ShadowLabel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ShadowLabel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/UIHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/UIHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameLogic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameLogic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameScreenPanel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -239,7 +243,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764747577378</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Fixed resolution, added cutscene, and updated story hints">
+      <option name="closed" value="true" />
+      <created>1764749271580</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1764749271580</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -21,9 +21,12 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
 
     private ShadowLabel hpBonusLabel, damageBonusLabel;
 
+    // NEW: Fight Images
+    private ImagePanel playerImagePanel;
+    private ImagePanel enemyImagePanel;
+
     private final String DEFAULT_BACKGROUND = "black_screen";
 
-    // Optimization: Track if repaint needed
     private boolean needsRepaint = false;
     private String currentBackground = null;
 
@@ -80,6 +83,20 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
         damageBonusLabel.setBounds(555, 0, 150, COMPONENT_HEIGHT);
         playerPanel.add(damageBonusLabel);
 
+        // NEW: PLAYER IMAGE (Bottom Left-ish) - Starts Invisible
+        playerImagePanel = new ImagePanel(UIHelper.findImagePath("player"));
+        playerImagePanel.setBounds(50, 340, 200, 200); // Adjust size as needed
+        playerImagePanel.setVisible(false);
+        playerImagePanel.setOpaque(false);
+        this.add(playerImagePanel);
+
+        // NEW: ENEMY IMAGE (Top Right-ish) - Starts Invisible
+        enemyImagePanel = new ImagePanel(null); // Image set dynamically
+        enemyImagePanel.setBounds(550, 150, 200, 200); // Adjust size as needed
+        enemyImagePanel.setVisible(false);
+        enemyImagePanel.setOpaque(false);
+        this.add(enemyImagePanel);
+
         mainTextArea = new JTextArea("");
         mainTextArea.setFont(new Font("Serif", Font.PLAIN, 24));
         mainTextArea.setForeground(Color.white);
@@ -127,7 +144,6 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
         playerSetup();
     }
 
-    // Optimized button with cached FontMetrics
     private JButton createGameButton(String text) {
         JButton button = new JButton(text) {
             private FontMetrics cachedFontMetrics = null;
@@ -138,7 +154,6 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 g2.setFont(this.getFont());
 
-                // Cache FontMetrics
                 if (cachedFontMetrics == null || !cachedFontMetrics.getFont().equals(this.getFont())) {
                     cachedFontMetrics = g2.getFontMetrics();
                 }
@@ -216,7 +231,6 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
         needsRepaint = false;
     }
 
-    // Optimization: Only repaint when needed
     private void scheduleRepaint() {
         if (!needsRepaint) {
             needsRepaint = true;
@@ -235,15 +249,13 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
         gameLogic.startGameNode();
     }
 
-    // GameUICallback implementations
     @Override
     public void updateText(String text) {
-        mainTextArea.setForeground(Color.white); // Reset to white
+        mainTextArea.setForeground(Color.white);
         mainTextArea.setText(text);
         scheduleRepaint();
     }
 
-    // NEW: Color support for text
     @Override
     public void updateColoredText(String text, Color color) {
         mainTextArea.setForeground(color);
@@ -297,7 +309,30 @@ public class GameScreenPanel extends JPanel implements GameLogic.GameUICallback 
         scheduleRepaint();
     }
 
-    // Choice handler delegates to GameLogic
+    // --- NEW COMBAT VISUAL METHODS ---
+
+    @Override
+    public void setCombatMode(boolean isActive) {
+        // Toggle visibility of the images
+        playerImagePanel.setVisible(isActive);
+        enemyImagePanel.setVisible(isActive);
+
+        // If inactive, clear the enemy image just in case
+        if (!isActive) {
+            enemyImagePanel.setImage(null);
+        }
+        scheduleRepaint();
+    }
+
+    @Override
+    public void setEnemyImage(String enemyName) {
+        // Convert "Wild Boar" to "wild_boar" automatically
+        String formattedName = enemyName.toLowerCase().replace(" ", "_");
+
+        enemyImagePanel.setImage(UIHelper.findImagePath(formattedName));
+        scheduleRepaint();
+    }
+
     public class ChoiceHandler implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             String yourChoice = event.getActionCommand();
