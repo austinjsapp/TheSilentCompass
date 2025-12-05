@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="Fixed resolution, added cutscene, and updated story hints">
-      <change afterPath="$PROJECT_DIR$/resources/giant_crab.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/giant_snake.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/jaguar.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/jungle_stalker.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/large_spider.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/player.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/wild_boar.png" afterDir="false" />
+    <list default="true" id="e0b8915e-4e67-4117-8f1b-c0bf857ebea2" name="Changes" comment="Implement visual combat system and adjust player positioning&#10;&#10;1). Added ImagePanels for Player and Enemy to GameScreenPanel&#10;2). Updated GameLogic to toggle combat visuals and load specific enemy assets&#10;3). Implemented automatic formatting for enemy filenames (e.g. &quot;Wild Boar&quot; -&gt; &quot;wild_boar&quot;)&#10;4). Adjusted player sprite Y-coordinate to avoid UI overlap">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GameLogic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameLogic.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GameScreenPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameScreenPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/player.png" beforeDir="false" afterPath="$PROJECT_DIR$/resources/player.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -251,7 +243,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764749271580</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Implement visual combat system and adjust player positioning&#10;&#10;1). Added ImagePanels for Player and Enemy to GameScreenPanel&#10;2). Updated GameLogic to toggle combat visuals and load specific enemy assets&#10;3). Implemented automatic formatting for enemy filenames (e.g. &quot;Wild Boar&quot; -&gt; &quot;wild_boar&quot;)&#10;4). Adjusted player sprite Y-coordinate to avoid UI overlap">
+      <option name="closed" value="true" />
+      <created>1764794921030</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1764794921030</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -265,7 +265,8 @@
     <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/AboutUsScreenPanel.java&#10;#&#9;src/Game.java&#10;#&#9;src/LoadingScreenPanel.java&#10;#&#9;src/MainMenuPanel.java&#10;#&#9;src/SoundManager.java&#10;#&#9;src/UIHelper.java" />
     <MESSAGE value="1) Implemented fullscreen mode with dynamic UI scaling&#10;2) Added settings menu with ESC key support&#10;3) Music and SFX volume controls with logarithmic scaling&#10;4) Fixed memory leaks in SoundManager with proper resource cleanup&#10;5) Optimized code organization with constants and better error handling&#10;6) Centered title and fixed About Us text display&#10;7) Added animated loading screen with &quot;Loading...&quot; dots&#10;8) Removed mute button (replaced by settings menu)&#10;9) Fixed volume slider artifacts and improved UI consistency&#10;10) Enhanced all panels for proper fullscreen scaling" />
     <MESSAGE value="Fixed resolution, added cutscene, and updated story hints" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed resolution, added cutscene, and updated story hints" />
+    <MESSAGE value="Implement visual combat system and adjust player positioning&#10;&#10;1). Added ImagePanels for Player and Enemy to GameScreenPanel&#10;2). Updated GameLogic to toggle combat visuals and load specific enemy assets&#10;3). Implemented automatic formatting for enemy filenames (e.g. &quot;Wild Boar&quot; -&gt; &quot;wild_boar&quot;)&#10;4). Adjusted player sprite Y-coordinate to avoid UI overlap" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement visual combat system and adjust player positioning&#10;&#10;1). Added ImagePanels for Player and Enemy to GameScreenPanel&#10;2). Updated GameLogic to toggle combat visuals and load specific enemy assets&#10;3). Implemented automatic formatting for enemy filenames (e.g. &quot;Wild Boar&quot; -&gt; &quot;wild_boar&quot;)&#10;4). Adjusted player sprite Y-coordinate to avoid UI overlap" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
